@@ -1,34 +1,21 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import { ErrorState } from '../components/ui/ErrorState'
+import { Pagination } from '../components/ui/Pagination'
 import { ProductGrid } from '../components/product/ProductGrid'
-import { mockProducts, mockCategories } from '../data/mockData.jsx'
+import { api } from '../services/api'
+
+const PAGE_SIZE = 6
 
 const SORT_OPTIONS = [
   { value: 'recommended', label: 'Recommended' },
   { value: 'price-asc', label: 'Price: Low to High' },
   { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'newest', label: 'Newest' },
 ]
 
-const LOCATION_OPTIONS = [
-  { value: 'all', label: 'All areas' },
-  { value: 'Your Area', label: 'Your Area' },
-  { value: 'Nearby', label: 'Nearby' },
-]
-
-// CategoryCard links use the lowercase category id (e.g. ?category=tools),
-// while products store the display name (e.g. "Tools").
-function categoryNameFromParam(param) {
-  if (!param) return ''
-  const cleaned = param.trim().toLowerCase()
-  const match = mockCategories.find(
-    (c) => c.id.toLowerCase() === cleaned || c.name.toLowerCase() === cleaned
-  )
-  return match ? match.name : ''
-}
-
-// Empty, non-numeric, or negative entries are ignored (treated as unbounded).
 function parsePrice(value) {
   const trimmed = value.trim()
   if (trimmed === '') return undefined
@@ -36,60 +23,82 @@ function parsePrice(value) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined
 }
 
-function matchesQuery(product, query) {
-  const text = query.trim().toLowerCase()
-  if (!text) return true
-  const haystack = [product.name, product.category, product.location, ...(product.tags || [])]
-    .join(' ')
-    .toLowerCase()
-  return haystack.includes(text)
+function parsePage(value) {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1
+}
+
+function normalizeSort(value) {
+  return SORT_OPTIONS.some((option) => option.value === value) ? value : 'recommended'
 }
 
 export default function BrowsePage() {
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // Filters initialize from the URL so homepage search (?q=) and
-  // category cards (?category=) land with the right results.
-  const [query, setQuery] = useState(searchParams.get('q') || '')
-  const [categoryName, setCategoryName] = useState(() =>
-    categoryNameFromParam(searchParams.get('category'))
-  )
-  const [location, setLocation] = useState(searchParams.get('location') || 'all')
-  const [minPrice, setMinPrice] = useState(searchParams.get('min') || '')
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('max') || '')
-  const [sort, setSort] = useState(searchParams.get('sort') || 'recommended')
+  const [query, setQuery] = useState(() => searchParams.get('q') || '')
+  const [category, setCategory] = useState(() => searchParams.get('category') || '')
+  const [minPrice, setMinPrice] = useState(() => searchParams.get('min') || '')
+  const [maxPrice, setMaxPrice] = useState(() => searchParams.get('max') || '')
+  const [sort, setSort] = useState(() => normalizeSort(searchParams.get('sort') || ''))
+  const [page, setPage] = useState(() => parsePage(searchParams.get('page')))
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  // If the user navigates to /browse with new params while already on
-  // the page (e.g. clicking another category card), pick them up.
+  const [categories, setCategories] = useState([])
+  const [categoriesStatus, setCategoriesStatus] = useState('loading')
+  const [categoriesError, setCategoriesError] = useState('')
+  const [categoriesReloadKey, setCategoriesReloadKey] = useState(0)
+
+  const [products, setProducts] = useState([])
+  const [pagination, setPagination] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [reloadKey, setReloadKey] = useState(0)
+
   useEffect(() => {
     setQuery(searchParams.get('q') || '')
-    setCategoryName(categoryNameFromParam(searchParams.get('category')))
-    setLocation(searchParams.get('location') || 'all')
+    setCategory(searchParams.get('category') || '')
     setMinPrice(searchParams.get('min') || '')
     setMaxPrice(searchParams.get('max') || '')
-    setSort(searchParams.get('sort') || 'recommended')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.toString()])
+    setSort(normalizeSort(searchParams.get('sort') || ''))
+    setPage(parsePage(searchParams.get('page')))
+  }, [searchParams])
 
-  // Keep the URL in sync so filtered views are shareable and survive refresh.
   useEffect(() => {
     const params = {}
     if (query.trim()) params.q = query.trim()
-    const categoryId = mockCategories.find((c) => c.name === categoryName)?.id
-    if (categoryId) params.category = categoryId
-    if (location !== 'all') params.location = location
+    if (category) params.category = category
     if (minPrice.trim()) params.min = minPrice.trim()
     if (maxPrice.trim()) params.max = maxPrice.trim()
     if (sort !== 'recommended') params.sort = sort
-    const current = searchParams.toString()
+    if (page > 1) params.page = String(page)
+
     const next = new URLSearchParams(params).toString()
-    if (current !== next) {
-      setSearchParams(params, { replace: true })
+    if (searchParams.toString() !== next) {
+      setSearchParams(next, { replace: true })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, categoryName, location, minPrice, maxPrice, sort])
+  }, [query, category, minPrice, maxPrice, sort, page, searchParams, setSearchParams])
+
+  useEffect(() => {
+    let active = true
+    setCategoriesStatus('loading')
+    setCategoriesError('')
+
+    api.getCategories()
+      .then((data) => {
+        if (!active) return
+        setCategories(data.categories || [])
+        setCategoriesStatus('success')
+      })
+      .catch((err) => {
+        if (!active) return
+        setCategoriesError(err.message || 'Unable to load categories.')
+        setCategoriesStatus('error')
+      })
+
+    return () => {
+      active = false
+    }
+  }, [categoriesReloadKey])
 
   const validMin = parsePrice(minPrice)
   const validMax = parsePrice(maxPrice)
@@ -98,34 +107,70 @@ export default function BrowsePage() {
       ? 'Minimum price cannot be more than maximum price.'
       : null
 
-  const categoriesWithCounts = useMemo(
-    () =>
-      mockCategories.map((category) => ({
-        ...category,
-        count: mockProducts.filter((p) => p.category === category.name).length,
-      })),
-    []
-  )
+  useEffect(() => {
+    if (priceError) {
+      setProducts([])
+      setPagination(null)
+      setError('')
+      setIsLoading(false)
+      return
+    }
 
-  const filteredProducts = useMemo(() => {
-    if (priceError) return []
-    const list = mockProducts.filter((product) => {
-      if (!matchesQuery(product, query)) return false
-      if (categoryName && product.category !== categoryName) return false
-      if (location !== 'all' && product.location !== location) return false
-      if (validMin !== undefined && product.price < validMin) return false
-      if (validMax !== undefined && product.price > validMax) return false
-      return true
-    })
-    if (sort === 'price-asc') return [...list].sort((a, b) => a.price - b.price)
-    if (sort === 'price-desc') return [...list].sort((a, b) => b.price - a.price)
-    return list
-  }, [query, categoryName, location, validMin, validMax, sort, priceError])
+    let active = true
+    setIsLoading(true)
+    setError('')
+
+    const timer = setTimeout(() => {
+      api.getProducts({
+        q: query.trim() || undefined,
+        category: category || undefined,
+        minPrice: validMin,
+        maxPrice: validMax,
+        sort,
+        page,
+        limit: PAGE_SIZE,
+      })
+        .then((data) => {
+          if (!active) return
+
+          const totalPages = data.pagination?.totalPages || 0
+          if ((totalPages > 0 && page > totalPages) || (totalPages === 0 && page > 1)) {
+            setPage(totalPages > 0 ? totalPages : 1)
+            return
+          }
+
+          setProducts(data.products || [])
+          setPagination(data.pagination || null)
+        })
+        .catch((err) => {
+          if (!active) return
+          setProducts([])
+          setPagination(null)
+          setError(err.message || 'Unable to load listings.')
+        })
+        .finally(() => {
+          if (active) setIsLoading(false)
+        })
+    }, query.trim() ? 250 : 0)
+
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [query, category, validMin, validMax, sort, page, priceError, reloadKey])
+
+  const categoryLabel =
+    categories.find((item) => item.slug === category || item.id === category)?.name ||
+    category
+
+  const allCategoryCount = categories.reduce(
+    (total, item) => total + (item.productCount || 0),
+    0
+  )
 
   const activeFilters = []
   if (query.trim()) activeFilters.push({ key: 'q', label: `"${query.trim()}"` })
-  if (categoryName) activeFilters.push({ key: 'category', label: categoryName })
-  if (location !== 'all') activeFilters.push({ key: 'location', label: location })
+  if (category) activeFilters.push({ key: 'category', label: categoryLabel })
   if (validMin !== undefined || validMax !== undefined) {
     activeFilters.push({
       key: 'price',
@@ -133,28 +178,51 @@ export default function BrowsePage() {
     })
   }
 
+  const updateQuery = (value) => {
+    setQuery(value)
+    setPage(1)
+  }
+
+  const updateCategory = (value) => {
+    setCategory(value)
+    setPage(1)
+  }
+
+  const updateMinPrice = (value) => {
+    setMinPrice(value)
+    setPage(1)
+  }
+
+  const updateMaxPrice = (value) => {
+    setMaxPrice(value)
+    setPage(1)
+  }
+
+  const updateSort = (value) => {
+    setSort(value)
+    setPage(1)
+  }
+
   const clearAll = () => {
     setQuery('')
-    setCategoryName('')
-    setLocation('all')
+    setCategory('')
     setMinPrice('')
     setMaxPrice('')
     setSort('recommended')
+    setPage(1)
   }
 
   const removeFilter = (key) => {
     if (key === 'q') setQuery('')
-    if (key === 'category') setCategoryName('')
-    if (key === 'location') setLocation('all')
+    if (key === 'category') setCategory('')
     if (key === 'price') {
       setMinPrice('')
       setMaxPrice('')
     }
+    setPage(1)
   }
 
-  // Product details and borrowing require an account. While logged out,
-  // protected taps lead to login, per project rules.
-  const handleProtectedAction = () => navigate('/login')
+  const totalItems = pagination?.total ?? products.length
 
   const filterControls = (
     <div className="space-y-7">
@@ -162,63 +230,58 @@ export default function BrowsePage() {
         <h3 id="filter-category" className="text-sm font-semibold uppercase tracking-wider text-navy-900">
           Category
         </h3>
-        <ul className="mt-3 space-y-1" role="list">
-          <li>
-            <button
-              type="button"
-              onClick={() => setCategoryName('')}
-              aria-pressed={categoryName === ''}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                categoryName === ''
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-neutral-500 hover:bg-neutral-100 hover:text-navy-900'
-              }`}
+        {categoriesStatus === 'loading' && (
+          <p className="mt-3 text-sm text-neutral-500" role="status">Loading categories...</p>
+        )}
+        {categoriesStatus === 'error' && (
+          <div className="mt-3">
+            <p className="text-sm text-neutral-500" role="alert">{categoriesError}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2 px-0"
+              onClick={() => setCategoriesReloadKey((key) => key + 1)}
             >
-              All categories
-              <span className="text-sm text-neutral-500">{mockProducts.length}</span>
-            </button>
-          </li>
-          {categoriesWithCounts.map((category) => (
-            <li key={category.id}>
+              Retry categories
+            </Button>
+          </div>
+        )}
+        {categoriesStatus === 'success' && (
+          <ul className="mt-3 space-y-1" role="list">
+            <li>
               <button
                 type="button"
-                onClick={() => setCategoryName(category.name)}
-                aria-pressed={categoryName === category.name}
+                onClick={() => updateCategory('')}
+                aria-pressed={category === ''}
                 className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  categoryName === category.name
+                  category === ''
                     ? 'bg-primary-50 text-primary-700'
                     : 'text-neutral-500 hover:bg-neutral-100 hover:text-navy-900'
                 }`}
               >
-                {category.name}
-                <span className="text-sm text-neutral-500">{category.count}</span>
+                All categories
+                <span className="text-sm text-neutral-500">{allCategoryCount}</span>
               </button>
             </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-labelledby="filter-location">
-        <h3 id="filter-location" className="text-sm font-semibold uppercase tracking-wider text-navy-900">
-          Location
-        </h3>
-        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by location">
-          {LOCATION_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setLocation(option.value)}
-              aria-pressed={location === option.value}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                location === option.value
-                  ? 'border-primary-500 bg-primary-50 text-primary-700'
-                  : 'border-neutral-200 bg-white text-neutral-500 hover:border-neutral-300 hover:text-navy-900'
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+            {categories.map((item) => (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  onClick={() => updateCategory(item.slug || item.id)}
+                  aria-pressed={category === item.slug || category === item.id}
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+                    category === item.slug || category === item.id
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-neutral-500 hover:bg-neutral-100 hover:text-navy-900'
+                  }`}
+                >
+                  {item.name}
+                  <span className="text-sm text-neutral-500">{item.productCount}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section aria-labelledby="filter-price">
@@ -234,7 +297,7 @@ export default function BrowsePage() {
             inputMode="numeric"
             placeholder="0"
             value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
+            onChange={(e) => updateMinPrice(e.target.value)}
           />
           <Input
             label="Max"
@@ -244,7 +307,7 @@ export default function BrowsePage() {
             inputMode="numeric"
             placeholder="800"
             value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
+            onChange={(e) => updateMaxPrice(e.target.value)}
             error={priceError || undefined}
           />
         </div>
@@ -281,15 +344,21 @@ export default function BrowsePage() {
             type="search"
             placeholder="Try &quot;drill&quot;, &quot;camera&quot;, or &quot;tent&quot;..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => updateQuery(e.target.value)}
             autoComplete="off"
           />
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <p className="text-sm text-neutral-500" role="status" aria-live="polite">
-            <span className="font-semibold text-navy-900">{filteredProducts.length}</span>{' '}
-            {filteredProducts.length === 1 ? 'item' : 'items'} found
+            {isLoading ? (
+              'Searching for items...'
+            ) : (
+              <>
+                <span className="font-semibold text-navy-900">{totalItems}</span>{' '}
+                {totalItems === 1 ? 'item' : 'items'} found
+              </>
+            )}
           </p>
           <div className="ml-auto flex items-center gap-3">
             <button
@@ -315,7 +384,7 @@ export default function BrowsePage() {
             <select
               id="browse-sort"
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(e) => updateSort(e.target.value)}
               className="rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-[15px] font-medium text-navy-900 shadow-sm transition-colors hover:border-neutral-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
               {SORT_OPTIONS.map((option) => (
@@ -370,13 +439,32 @@ export default function BrowsePage() {
               </div>
             )}
 
-            {filteredProducts.length > 0 ? (
-              <ProductGrid
-                products={filteredProducts}
-                onViewDetails={handleProtectedAction}
-                onSave={handleProtectedAction}
+            {isLoading && <ProductGrid isLoading skeletonCount={PAGE_SIZE} />}
+
+            {!isLoading && error && (
+              <ErrorState
+                title="Unable to load listings"
+                message={error}
+                onRetry={() => setReloadKey((key) => key + 1)}
               />
-            ) : (
+            )}
+
+            {!isLoading && !error && products.length > 0 && (
+              <>
+                <ProductGrid products={products} />
+                <Pagination
+                  className="mt-10"
+                  page={pagination?.page || page}
+                  totalPages={pagination?.totalPages || 0}
+                  onPageChange={(nextPage) => {
+                    setPage(nextPage)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                />
+              </>
+            )}
+
+            {!isLoading && !error && products.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-neutral-200 bg-white py-16 px-4 text-center shadow-card" role="status">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50">
                   <svg className="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

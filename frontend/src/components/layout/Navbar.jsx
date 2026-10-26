@@ -5,6 +5,7 @@ import { SearchBar } from '../search/SearchBar'
 import { LocationSelector } from '../search/LocationSelector'
 import { MobileNavPanel } from './MobileNavPanel'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
+import { Logo } from '../ui/Logo.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useToast } from '../ui/Toast.jsx'
 import { ConfirmDialog } from '../ui/Modal'
@@ -52,12 +53,7 @@ export function Navbar() {
           {/* Main row: logo left, search center, auth right */}
           <div className="flex items-center gap-3 lg:gap-6 h-16 lg:h-[4.5rem]">
             <Link to="/" className="flex items-center gap-2 flex-shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-400" aria-label="BorrowBox Home">
-              <span className="w-9 h-9 rounded-xl bg-primary-500 flex items-center justify-center" aria-hidden="true">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </span>
-              <span className="text-xl font-bold text-white font-display tracking-tight">BorrowBox</span>
+              <Logo variant="dark" size="md" />
             </Link>
 
             <div className="hidden lg:flex flex-1 justify-center min-w-0 px-2">
@@ -98,9 +94,6 @@ export function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link to="/signup">
-                    <Button size="md" className="whitespace-nowrap">List an Item</Button>
-                  </Link>
                   <Link
                     to="/login"
                     className="px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white/85 hover:text-white hover:bg-white/10 transition-colors"
@@ -119,7 +112,7 @@ export function Navbar() {
 
             <div className="lg:hidden flex items-center gap-2 ml-auto">
               <Link
-                to="/signup"
+                to="/my-products"
                 className="px-3 py-2 rounded-lg text-sm font-semibold bg-primary-500 text-white hover:bg-primary-600 transition-colors"
               >
                 List an Item

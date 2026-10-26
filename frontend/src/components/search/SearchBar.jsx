@@ -1,46 +1,6 @@
 import { useState, useRef, useEffect, useId, useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { Button } from '../ui/Button'
-import { mockProducts, mockCategories } from '../../data/mockData.jsx'
-
-// Suggestions are built live from mock data so typing a product name
-// ("drill", "camera", "tent", "speaker") surfaces real products,
-// while category names still surface category shortcuts.
-function buildSuggestions(text) {
-  const needle = text.trim().toLowerCase()
-  if (!needle) return []
-
-  const matchingCategories = mockCategories
-    .filter((category) => category.name.toLowerCase().includes(needle))
-    .slice(0, 4)
-    .map((category) => ({
-      key: `category-${category.id}`,
-      kind: 'category',
-      type: 'Category',
-      label: category.name,
-      icon: category.icon,
-      categoryId: category.id,
-    }))
-
-  const matchingProducts = mockProducts
-    .filter((product) =>
-      [product.name, product.category, product.location, ...(product.tags || [])]
-        .join(' ')
-        .toLowerCase()
-        .includes(needle)
-    )
-    .slice(0, 5)
-    .map((product) => ({
-      key: `product-${product.id}`,
-      kind: 'product',
-      type: 'Product',
-      label: product.name,
-      icon: 'box',
-      queryText: product.name,
-    }))
-
-  return [...matchingCategories, ...matchingProducts]
-}
+import { Link, useNavigate } from 'react-router-dom'
+import { api } from '../../services/api'
 
 const icons = {
   camera: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
@@ -48,6 +8,9 @@ const icons = {
   electronics: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
   gaming: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   outdoor: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+  events: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+  sports: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>,
+  home: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
   history: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   box: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>,
 }
@@ -56,12 +19,57 @@ export function SearchBar({ variant = 'default', onSearch, placeholder = 'Search
   const [query, setQuery] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
+  const [categories, setCategories] = useState([])
+  const [productMatches, setProductMatches] = useState([])
+  const [isSearching, setIsSearching] = useState(false)
   const inputRef = useRef(null)
   const containerRef = useRef(null)
-  // Unique ids per instance: navbar + hero + drawer search bars can share a page.
+  const navigate = useNavigate()
   const uid = useId().replace(/:/g, '')
   const inputId = `search-input-${uid}`
   const suggestionsId = `search-suggestions-${uid}`
+
+  useEffect(() => {
+    let active = true
+    api.getCategories()
+      .then((data) => {
+        if (active) setCategories(data.categories || [])
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const needle = query.trim()
+    if (!needle) {
+      setProductMatches([])
+      setIsSearching(false)
+      return
+    }
+
+    let active = true
+    setIsSearching(true)
+    setProductMatches([])
+    const timer = setTimeout(() => {
+      api.getProducts({ q: needle, limit: 5 })
+        .then((data) => {
+          if (active) setProductMatches(data.products || [])
+        })
+        .catch(() => {
+          if (active) setProductMatches([])
+        })
+        .finally(() => {
+          if (active) setIsSearching(false)
+        })
+    }, 250)
+
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [query])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -74,8 +82,33 @@ export function SearchBar({ variant = 'default', onSearch, placeholder = 'Search
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Live suggestions: matching categories first, then matching products.
-  const suggestions = useMemo(() => buildSuggestions(query), [query])
+  const suggestions = useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    if (!needle) return []
+
+    const matchingCategories = categories
+      .filter((category) => category.name.toLowerCase().includes(needle))
+      .slice(0, 4)
+      .map((category) => ({
+        key: `category-${category.id}`,
+        kind: 'category',
+        type: 'Category',
+        label: category.name,
+        icon: category.icon,
+        categorySlug: category.slug || category.id,
+      }))
+
+    const matchingProducts = productMatches.slice(0, 5).map((product) => ({
+      key: `product-${product.id}`,
+      kind: 'product',
+      type: product.category?.name || 'Product',
+      label: product.title,
+      icon: product.category?.slug || 'box',
+      productId: product.id,
+    }))
+
+    return [...matchingCategories, ...matchingProducts]
+  }, [query, categories, productMatches])
 
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
@@ -109,21 +142,25 @@ export function SearchBar({ variant = 'default', onSearch, placeholder = 'Search
     setQuery(suggestion.label)
     setShowSuggestions(false)
     setFocusedIndex(-1)
+
     if (onSearch) {
       onSearch(suggestion.label)
-    } else if (suggestion.kind === 'category') {
-      window.location.href = `/browse?category=${encodeURIComponent(suggestion.categoryId)}`
-    } else {
-      window.location.href = `/browse?q=${encodeURIComponent(suggestion.queryText || suggestion.label)}`
+      return
+    }
+
+    if (suggestion.kind === 'category') {
+      navigate(`/browse?category=${encodeURIComponent(suggestion.categorySlug)}`)
+    } else if (suggestion.productId) {
+      navigate(`/products/${suggestion.productId}`)
     }
   }
 
   const handleSearch = (searchQuery) => {
     if (onSearch) {
       onSearch(searchQuery)
-    } else {
-      window.location.href = `/browse?q=${encodeURIComponent(searchQuery)}`
+      return
     }
+    navigate(`/browse?q=${encodeURIComponent(searchQuery)}`)
   }
 
   const handleSubmit = (e) => {
@@ -215,7 +252,7 @@ export function SearchBar({ variant = 'default', onSearch, placeholder = 'Search
                     <span className="flex-shrink-0 text-neutral-400" aria-hidden="true">
                       {icons[suggestion.icon] || icons.box}
                     </span>
-                    <span className="flex-1">{suggestion.label}</span>
+                    <span className="flex-1 truncate">{suggestion.label}</span>
                     <span className="text-xs text-neutral-400 capitalize">{suggestion.type}</span>
                   </button>
                 ))
@@ -226,7 +263,9 @@ export function SearchBar({ variant = 'default', onSearch, placeholder = 'Search
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-base text-neutral-900 hover:bg-neutral-50 transition-colors"
                 >
                   <span className="flex-1">
-                    No matches — press Enter to search for &ldquo;{query.trim()}&rdquo;
+                    {isSearching
+                      ? 'Searching...'
+                      : `No matches — press Enter to search for “${query.trim()}”`}
                   </span>
                 </button>
               )}
@@ -234,6 +273,7 @@ export function SearchBar({ variant = 'default', onSearch, placeholder = 'Search
             <div className="p-2 border-t border-neutral-100">
               <Link
                 to="/browse"
+                onClick={() => setShowSuggestions(false)}
                 className="flex items-center justify-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

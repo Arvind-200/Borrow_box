@@ -41,6 +41,8 @@ const iconTints = {
 export function CategoryCard({ category, onClick, className = '' }) {
   const icon = categoryIcons[category.icon] || categoryIcons.electronics
   const tint = iconTints[category.icon] || 'bg-primary-50 text-primary-700'
+  const categoryTarget = category.slug || category.id
+  const itemCount = category.productCount ?? category.count ?? 0
 
   const handleClick = (e) => {
     if (onClick) {
@@ -51,7 +53,7 @@ export function CategoryCard({ category, onClick, className = '' }) {
   return (
     <article className={`h-full ${className}`}>
       <Link
-        to={`/browse?category=${category.id}`}
+        to={`/browse?category=${encodeURIComponent(categoryTarget)}`}
         onClick={handleClick}
         className="group flex h-full min-h-[13.5rem] flex-col rounded-2xl border border-neutral-200 bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-elevated focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         aria-label={`Browse ${category.name} items`}
@@ -64,7 +66,9 @@ export function CategoryCard({ category, onClick, className = '' }) {
           <h3 className="text-[17px] font-semibold leading-snug text-navy-900 group-hover:text-primary-700">
             {category.name}
           </h3>
-          <p className="mt-1 text-sm text-neutral-500">{category.count} items</p>
+          <p className="mt-1 text-sm text-neutral-500">
+            {itemCount} {itemCount === 1 ? 'item' : 'items'}
+          </p>
 
           <div className="mt-auto flex items-center justify-between border-t border-neutral-200 pt-3">
             <span className="text-sm font-semibold text-primary-600">Explore</span>

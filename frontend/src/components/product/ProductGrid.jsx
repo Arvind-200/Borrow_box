@@ -5,7 +5,6 @@ export function ProductGrid({
   products = [],
   isLoading = false,
   skeletonCount = 8,
-  onViewDetails,
   onSave,
   className = '',
   emptyMessage = 'No items found',
@@ -41,7 +40,6 @@ export function ProductGrid({
         <ProductCard
           key={product.id}
           product={product}
-          onViewDetails={onViewDetails}
           onSave={onSave}
         />
       ))}

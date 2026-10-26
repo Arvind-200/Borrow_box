@@ -34,12 +34,13 @@
 - profile basics
 
 ## Phase 4 - Products
-- categories
+- [x] Phase 4A: Category/Product models, idempotent seed, public read APIs
+- [x] Phase 4B: Public catalog frontend integration (landing/browse/categories/search) and product detail page
 - add product
 - edit product
 - delete/unpublish own product
-- product listing
-- product detail
+- [x] product listing (frontend integration)
+- [x] product detail (frontend page)
 - image handling
 
 ## Phase 5 - Search

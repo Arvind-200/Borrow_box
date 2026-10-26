@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const points = [
   {
@@ -18,6 +19,8 @@ const points = [
 ]
 
 export default function AboutPage() {
+  const { isAuthenticated } = useAuth()
+
   return (
     <div className="bg-[#F8FAFC] py-12 px-4 sm:px-6">
       <div className="mx-auto w-full max-w-3xl">
@@ -49,11 +52,13 @@ export default function AboutPage() {
               Browse Items
             </Button>
           </Link>
-          <Link to="/signup" className="w-full sm:w-auto">
-            <Button variant="outline" size="lg" className="w-full sm:w-auto bg-white">
-              Create Free Account
-            </Button>
-          </Link>
+          {!isAuthenticated && (
+            <Link to="/signup" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-white">
+                Create Free Account
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

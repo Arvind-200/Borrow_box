@@ -5,6 +5,7 @@ import { Button } from '../ui/Button'
 import { SearchBar } from '../search/SearchBar'
 import { LocationSelector } from '../search/LocationSelector'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
+import { Logo } from '../ui/Logo.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useToast } from '../ui/Toast.jsx'
 import { ConfirmDialog } from '../ui/Modal'
@@ -73,10 +74,7 @@ export function MobileNavPanel({ isOpen, onClose }) {
       <div className="fixed inset-y-0 right-0 w-full max-w-sm lg:hidden z-50 flex flex-col animate-slide-in">
         <div className="flex items-center justify-between p-4 border-b border-neutral-100 bg-white">
           <Link to="/" className="flex items-center gap-2" aria-label="BorrowBox Home" onClick={onClose}>
-            <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span className="text-xl font-bold text-neutral-900">BorrowBox</span>
+            <Logo size="md" />
           </Link>
           <button
             onClick={onClose}

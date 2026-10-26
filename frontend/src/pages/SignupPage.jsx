@@ -5,6 +5,7 @@ import { Input } from '../components/ui/Input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
+import { Logo } from '../components/ui/Logo.jsx'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -66,12 +67,7 @@ export default function SignupPage() {
     <div className="bg-[#F8FAFC] py-12 px-4 sm:px-6">
       <div className="mx-auto w-full max-w-md">
         <Link to="/" className="mx-auto mb-6 flex w-fit items-center gap-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" aria-label="BorrowBox Home">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500" aria-hidden="true">
-            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-          </span>
-          <span className="font-display text-xl font-bold text-navy-900">BorrowBox</span>
+          <Logo size="md" />
         </Link>
         <Card className="p-6 sm:p-8">
           <CardHeader className="text-center">

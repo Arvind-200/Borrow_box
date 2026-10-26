@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Logo } from '../ui/Logo.jsx'
 
 const borrowLinks = [
   { label: 'Browse Items', path: '/browse' },
@@ -7,7 +8,7 @@ const borrowLinks = [
 ]
 
 const lendLinks = [
-  { label: 'List an Item', path: '/signup' },
+  { label: 'List an Item', path: '/my-products' },
   { label: 'How Lending Works', path: '/#how-it-works' },
   { label: 'Community Guidelines', path: '/guidelines' },
 ]
@@ -72,16 +73,8 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10 mb-12">
           <div className="col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4" aria-label="BorrowBox Home">
-              <span className="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center" aria-hidden="true">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </span>
-              <span className="text-2xl font-bold text-white font-display">BorrowBox</span>
+              <Logo variant="dark" showTagline size="lg" />
             </Link>
-            <p className="text-white/65 mb-6 max-w-xs text-[15px] leading-relaxed">
-              Lend less waste, borrow what you need from trusted neighbors.
-            </p>
             <div className="flex gap-3">
               <a href="#" className="p-2 rounded-lg text-white/55 hover:text-white hover:bg-white/10 transition-colors" aria-label="Twitter">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" /></svg>

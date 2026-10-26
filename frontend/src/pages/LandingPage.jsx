@@ -1,11 +1,12 @@
-import { useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
+import { ErrorState } from '../components/ui/ErrorState'
 import { ProductGrid } from '../components/product/ProductGrid'
 import { CategoryCard } from '../components/category/CategoryCard'
 import { SearchBar } from '../components/search/SearchBar'
-import { mockProducts, mockCategories } from '../data/mockData.jsx'
+import { api } from '../services/api'
 
 const steps = [
   {
@@ -117,7 +118,14 @@ function SectionHeading({ eyebrow, title, description, align = 'center', dark = 
 
 export default function LandingPage() {
   const location = useLocation()
-  const navigate = useNavigate()
+  const [categories, setCategories] = useState([])
+  const [categoriesStatus, setCategoriesStatus] = useState('loading')
+  const [categoriesError, setCategoriesError] = useState('')
+  const [categoriesReloadKey, setCategoriesReloadKey] = useState(0)
+  const [products, setProducts] = useState([])
+  const [productsStatus, setProductsStatus] = useState('loading')
+  const [productsError, setProductsError] = useState('')
+  const [productsReloadKey, setProductsReloadKey] = useState(0)
 
   // Scroll to an in-page section when arriving via a hash link
   // (e.g. footer "How It Works" -> /#how-it-works).
@@ -131,9 +139,49 @@ export default function LandingPage() {
     }
   }, [location])
 
-  // Product details and borrowing require an account. While logged out,
-  // protected taps lead to login, per project rules.
-  const handleProtectedAction = () => navigate('/login')
+  useEffect(() => {
+    let active = true
+    setCategoriesStatus('loading')
+    setCategoriesError('')
+
+    api.getCategories()
+      .then((data) => {
+        if (!active) return
+        setCategories(data.categories || [])
+        setCategoriesStatus('success')
+      })
+      .catch((error) => {
+        if (!active) return
+        setCategoriesError(error.message || 'Unable to load categories.')
+        setCategoriesStatus('error')
+      })
+
+    return () => {
+      active = false
+    }
+  }, [categoriesReloadKey])
+
+  useEffect(() => {
+    let active = true
+    setProductsStatus('loading')
+    setProductsError('')
+
+    api.getProducts({ limit: 8, sort: 'recommended' })
+      .then((data) => {
+        if (!active) return
+        setProducts(data.products || [])
+        setProductsStatus('success')
+      })
+      .catch((error) => {
+        if (!active) return
+        setProductsError(error.message || 'Unable to load listings.')
+        setProductsStatus('error')
+      })
+
+    return () => {
+      active = false
+    }
+  }, [productsReloadKey])
 
   return (
     <div className="bg-[#F8FAFC]">
@@ -165,7 +213,7 @@ export default function LandingPage() {
                   Browse Items
                 </Button>
               </Link>
-              <Link to="/signup" className="w-full sm:w-auto">
+              <Link to="/my-products" className="w-full sm:w-auto">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto bg-white">
                   List an Item
                 </Button>
@@ -196,14 +244,42 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="Categories"
               title="Browse by category"
-              description="Eight trusted categories from neighbors near you."
+              description="Trusted categories from neighbors near you."
             />
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-5">
-            {mockCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
+          {categoriesStatus === 'loading' && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-5" aria-label="Loading categories">
+              {[...Array(8)].map((_, index) => (
+                <div key={index} className="min-h-[13.5rem] animate-pulse rounded-2xl border border-neutral-200 bg-white p-5 shadow-card">
+                  <div className="h-[3.25rem] w-[3.25rem] rounded-xl bg-neutral-200" />
+                  <div className="mt-4 h-5 w-2/3 rounded bg-neutral-200" />
+                  <div className="mt-2 h-4 w-1/3 rounded bg-neutral-200" />
+                  <div className="mt-8 h-4 w-full rounded bg-neutral-100" />
+                </div>
+              ))}
+            </div>
+          )}
+          {categoriesStatus === 'error' && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center shadow-card" role="alert">
+              <p className="font-semibold text-navy-900">Unable to load categories</p>
+              <p className="mt-1 text-sm text-neutral-500">{categoriesError}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => setCategoriesReloadKey((key) => key + 1)}
+              >
+                Try again
+              </Button>
+            </div>
+          )}
+          {categoriesStatus === 'success' && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-5">
+              {categories.map((category) => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -230,11 +306,23 @@ export default function LandingPage() {
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </Link>
           </div>
-          <ProductGrid
-            products={mockProducts}
-            onViewDetails={handleProtectedAction}
-            onSave={handleProtectedAction}
-          />
+          {productsStatus === 'loading' && (
+            <ProductGrid isLoading skeletonCount={8} />
+          )}
+          {productsStatus === 'error' && (
+            <ErrorState
+              title="Unable to load listings"
+              message={productsError}
+              onRetry={() => setProductsReloadKey((key) => key + 1)}
+            />
+          )}
+          {productsStatus === 'success' && (
+            <ProductGrid
+              products={products}
+              emptyMessage="No listings available yet"
+              emptyDescription="Check back soon as neighbors add items to BorrowBox."
+            />
+          )}
         </div>
       </section>
 
