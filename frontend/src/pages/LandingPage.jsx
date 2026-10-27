@@ -213,7 +213,7 @@ export default function LandingPage() {
                   Browse Items
                 </Button>
               </Link>
-              <Link to="/my-products" className="w-full sm:w-auto">
+              <Link to="/products/new" className="w-full sm:w-auto">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto bg-white">
                   List an Item
                 </Button>

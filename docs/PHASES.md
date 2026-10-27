@@ -36,11 +36,10 @@
 ## Phase 4 - Products
 - [x] Phase 4A: Category/Product models, idempotent seed, public read APIs
 - [x] Phase 4B: Public catalog frontend integration (landing/browse/categories/search) and product detail page
-- add product
-- edit product
-- delete/unpublish own product
+- [x] Phase 4C: Add product, edit own product, publish/unpublish own product (server-side ownership checks)
 - [x] product listing (frontend integration)
 - [x] product detail (frontend page)
+- delete own product
 - image handling
 
 ## Phase 5 - Search

@@ -8,7 +8,7 @@ const borrowLinks = [
 ]
 
 const lendLinks = [
-  { label: 'List an Item', path: '/my-products' },
+  { label: 'List an Item', path: '/products/new' },
   { label: 'How Lending Works', path: '/#how-it-works' },
   { label: 'Community Guidelines', path: '/guidelines' },
 ]

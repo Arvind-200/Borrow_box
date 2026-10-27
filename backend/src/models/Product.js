@@ -65,6 +65,11 @@ const productSchema = new mongoose.Schema(
       enum: PRODUCT_AVAILABILITY,
       default: 'available',
     },
+    isPublished: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     condition: {
       type: String,
       enum: PRODUCT_CONDITIONS,

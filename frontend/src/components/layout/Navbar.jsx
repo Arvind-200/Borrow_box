@@ -112,7 +112,7 @@ export function Navbar() {
 
             <div className="lg:hidden flex items-center gap-2 ml-auto">
               <Link
-                to="/my-products"
+                to="/products/new"
                 className="px-3 py-2 rounded-lg text-sm font-semibold bg-primary-500 text-white hover:bg-primary-600 transition-colors"
               >
                 List an Item

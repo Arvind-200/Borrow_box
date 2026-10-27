@@ -17,6 +17,11 @@ const POPULATE = [
   { path: 'owner', select: 'name' },
 ]
 
+const PUBLIC_FILTER = {
+  moderationStatus: 'active',
+  isPublished: { $ne: false },
+}
+
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
@@ -46,6 +51,7 @@ function toPublicProduct(product) {
     rentPerDay: product.rentPerDay,
     location: product.location,
     availability: product.availability,
+    isPublished: product.isPublished !== false,
     condition: product.condition,
     tags: Array.isArray(product.tags) ? product.tags : [],
     rating: {
@@ -84,7 +90,7 @@ async function resolveCategoryFilter(categoryParam) {
 }
 
 export async function listProducts({ q, category, minPrice, maxPrice, sort, page, limit }) {
-  const filter = { moderationStatus: 'active' }
+  const filter = { ...PUBLIC_FILTER }
 
   if (category) {
     filter.category = await resolveCategoryFilter(category)
@@ -155,7 +161,7 @@ export async function getProductById(id) {
 
   const product = await Product.findOne({
     _id: id,
-    moderationStatus: 'active',
+    ...PUBLIC_FILTER,
   })
     .populate(POPULATE)
     .lean()
@@ -163,6 +169,85 @@ export async function getProductById(id) {
   if (!product) {
     throw new ApiError(404, 'Product not found')
   }
+
+  return { product: toPublicProduct(product) }
+}
+
+async function ensureActiveCategory(categoryId) {
+  const category = await Category.findOne({
+    _id: categoryId,
+    isActive: true,
+  })
+    .select('_id')
+    .lean()
+
+  if (!category) {
+    throw new ApiError(400, 'Category not found')
+  }
+}
+
+async function findOwnedProduct(id, ownerId) {
+  if (!OBJECT_ID_REGEX.test(id)) {
+    throw new ApiError(400, 'Invalid product id')
+  }
+
+  const product = await Product.findById(id)
+  if (!product) {
+    throw new ApiError(404, 'Product not found')
+  }
+  if (String(product.owner) !== String(ownerId)) {
+    throw new ApiError(403, 'You can only manage your own listings')
+  }
+
+  return product
+}
+
+export async function listOwnedProducts(ownerId) {
+  const products = await Product.find({ owner: ownerId })
+    .sort({ createdAt: -1, _id: -1 })
+    .populate(POPULATE)
+    .lean()
+
+  return {
+    products: products.map(toPublicProduct),
+    count: products.length,
+  }
+}
+
+export async function getOwnedProduct(id, ownerId) {
+  const product = await findOwnedProduct(id, ownerId)
+  await product.populate(POPULATE)
+  return { product: toPublicProduct(product) }
+}
+
+export async function createProduct(ownerId, input) {
+  await ensureActiveCategory(input.category)
+
+  const product = await Product.create({
+    ...input,
+    owner: ownerId,
+  })
+  await product.populate(POPULATE)
+
+  return { product: toPublicProduct(product) }
+}
+
+export async function updateOwnedProduct(id, ownerId, input) {
+  await ensureActiveCategory(input.category)
+
+  const product = await findOwnedProduct(id, ownerId)
+  Object.assign(product, input)
+  await product.save()
+  await product.populate(POPULATE)
+
+  return { product: toPublicProduct(product) }
+}
+
+export async function updateOwnedProductPublication(id, ownerId, isPublished) {
+  const product = await findOwnedProduct(id, ownerId)
+  product.isPublished = isPublished
+  await product.save()
+  await product.populate(POPULATE)
 
   return { product: toPublicProduct(product) }
 }

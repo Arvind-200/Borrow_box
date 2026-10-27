@@ -19,7 +19,12 @@ export async function listCategories() {
       .sort({ sortOrder: 1, name: 1 })
       .lean(),
     Product.aggregate([
-      { $match: { moderationStatus: 'active' } },
+      {
+        $match: {
+          moderationStatus: 'active',
+          isPublished: { $ne: false },
+        },
+      },
       { $group: { _id: '$category', count: { $sum: 1 } } },
     ]),
   ])

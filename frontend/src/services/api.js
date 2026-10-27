@@ -57,4 +57,14 @@ export const api = {
   getCategories: () => request('/categories'),
   getProducts: (params = {}) => request(`/products${toQueryString(params)}`),
   getProduct: (id) => request(`/products/${encodeURIComponent(id)}`),
+  getMyProducts: () => request('/products/mine'),
+  getMyProduct: (id) => request(`/products/mine/${encodeURIComponent(id)}`),
+  createProduct: (payload) => request('/products', { method: 'POST', body: payload }),
+  updateProduct: (id, payload) =>
+    request(`/products/${encodeURIComponent(id)}`, { method: 'PUT', body: payload }),
+  setProductPublication: (id, isPublished) =>
+    request(`/products/${encodeURIComponent(id)}/publication`, {
+      method: 'PATCH',
+      body: { isPublished },
+    }),
 }

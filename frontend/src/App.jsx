@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import BrowsePage from './pages/BrowsePage'
 import ProductDetailPage from './pages/ProductDetailPage'
+import ProductFormPage from './pages/ProductFormPage'
 import CategoriesPage from './pages/CategoriesPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
@@ -20,6 +21,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/browse" element={<BrowsePage />} />
+          <Route path="/products/new" element={<ProtectedRoute><ProductFormPage /></ProtectedRoute>} />
+          <Route path="/products/:id/edit" element={<ProtectedRoute><ProductFormPage /></ProtectedRoute>} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/login" element={<LoginPage />} />
