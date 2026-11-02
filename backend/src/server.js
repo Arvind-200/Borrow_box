@@ -1,9 +1,10 @@
 import app from './app.js'
-import { config } from './config/env.js'
+import { config, validateConfig } from './config/env.js'
 import { connectDB } from './config/db.js'
 
 async function startServer() {
   try {
+    validateConfig()
     await connectDB()
 
     const server = app.listen(config.port, () => {

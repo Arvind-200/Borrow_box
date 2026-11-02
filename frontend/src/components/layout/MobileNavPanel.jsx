@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { Button } from '../ui/Button'
 import { SearchBar } from '../search/SearchBar'
-import { LocationSelector } from '../search/LocationSelector'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { Logo } from '../ui/Logo.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
@@ -90,7 +89,6 @@ export function MobileNavPanel({ isOpen, onClose }) {
         <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-white">
           <div className="space-y-4">
             <SearchBar variant="full" placeholder="Search items: tools, cameras, camping gear..." />
-            <LocationSelector variant="default" />
           </div>
 
           <nav aria-label="Main navigation">
@@ -165,7 +163,7 @@ export function MobileNavPanel({ isOpen, onClose }) {
 
         <div className="p-4 border-t border-neutral-100 bg-white">
           <p className="text-xs text-center text-neutral-500">
-            Borrow what you need. Lend what you have.
+            Browse local listings. Lend what you have.
           </p>
         </div>
       </div>

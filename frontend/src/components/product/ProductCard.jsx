@@ -1,5 +1,4 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { StarRating } from '../ui/StarRating'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { getCategoryGradient, ProductCategoryIcon } from './productVisuals'
@@ -11,8 +10,6 @@ export function ProductCard({ product, onSave, className = '' }) {
   const title = product.title || product.name || 'Untitled item'
   const image = product.images?.[0] || product.image
   const rentPerDay = product.rentPerDay ?? product.price ?? 0
-  const rating = Number(product.rating?.average ?? product.rating ?? 0)
-  const reviewCount = Number(product.rating?.count ?? product.reviewCount ?? 0)
   const isAvailable = String(product.availability || 'available').toLowerCase() === 'available'
   const availabilityLabel = isAvailable ? 'Available' : 'Unavailable'
   const placeholderGradient = getCategoryGradient(categoryName)
@@ -92,20 +89,7 @@ export function ProductCard({ product, onSave, className = '' }) {
           </h3>
         </Link>
 
-        <div className="mt-3 flex items-center gap-2">
-          <StarRating
-            rating={rating}
-            size="sm"
-            showRating={reviewCount > 0}
-            showCount={reviewCount > 0}
-            reviewCount={reviewCount}
-          />
-          {reviewCount === 0 && (
-            <span className="text-sm text-neutral-500">No reviews yet</span>
-          )}
-        </div>
-
-        <div className="mt-2 flex items-center gap-2 text-sm text-neutral-500">
+        <div className="mt-3 flex items-center gap-2 text-sm text-neutral-500">
           <svg className="w-4 h-4 flex-shrink-0 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />

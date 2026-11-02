@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/Button'
 import { SearchBar } from '../search/SearchBar'
-import { LocationSelector } from '../search/LocationSelector'
 import { MobileNavPanel } from './MobileNavPanel'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { Logo } from '../ui/Logo.jsx'
@@ -130,8 +129,8 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Secondary row: nav links + location selector */}
-          <div className="hidden lg:flex items-center justify-between gap-4 pb-3">
+          {/* Secondary row: nav links */}
+          <div className="hidden lg:flex items-center gap-4 pb-3">
             <div className="flex items-center gap-1.5">
               {navLinks.map((link) => (
                 <Link
@@ -149,9 +148,6 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-            </div>
-            <div className="flex-shrink-0">
-              <LocationSelector variant="compact" animated />
             </div>
           </div>
         </div>

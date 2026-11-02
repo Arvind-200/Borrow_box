@@ -19,7 +19,7 @@ const CONDITION_OPTIONS = [
 ]
 
 const AVAILABILITY_OPTIONS = [
-  { value: 'available', label: 'Available to borrow' },
+  { value: 'available', label: 'Available' },
   { value: 'unavailable', label: 'Currently unavailable' },
 ]
 
@@ -245,15 +245,15 @@ export default function ProductFormPage() {
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <span className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-700">
-              {isEdit ? 'Owner tools' : 'Lend an item'}
+              {isEdit ? 'Owner tools' : 'List an item'}
             </span>
             <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-navy-900 sm:text-4xl">
               {isEdit ? 'Edit your listing' : 'List a new item'}
             </h1>
             <p className="mt-2 max-w-2xl text-base text-neutral-500">
               {isEdit
-                ? 'Update the details borrowers see. Changes are visible as soon as you save.'
-                : 'Add clear details and a fair daily price so neighbors know exactly what to expect.'}
+                ? 'Update the details people see. Changes are visible as soon as you save.'
+                : 'Add clear details and a fair daily price so members know exactly what to expect.'}
             </p>
           </div>
           {isEdit && product?.isPublished && (
@@ -376,7 +376,7 @@ export default function ProductFormPage() {
                       onChange={handleChange}
                       rows={5}
                       maxLength={2000}
-                      placeholder="Describe the item, what is included, and anything a borrower should know."
+                      placeholder="Describe the item, what is included, and anything else someone should know."
                       className={`${fieldClass} resize-y ${errors.description ? 'border-error-500' : ''}`}
                       aria-invalid={errors.description ? 'true' : 'false'}
                       required
@@ -551,7 +551,7 @@ export default function ProductFormPage() {
                 <ul className="mt-3 space-y-2 text-sm text-neutral-600">
                   <li className="flex gap-2"><span className="text-primary-600">•</span>Use a specific title and a fair daily price.</li>
                   <li className="flex gap-2"><span className="text-primary-600">•</span>Mention included accessories and pickup details.</li>
-                  <li className="flex gap-2"><span className="text-primary-600">•</span>Keep availability current so borrowers know what to expect.</li>
+                  <li className="flex gap-2"><span className="text-primary-600">•</span>Keep availability current so people browsing know what to expect.</li>
                 </ul>
               </div>
             </aside>

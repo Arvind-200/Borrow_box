@@ -332,7 +332,7 @@ export default function BrowsePage() {
             Browse Items
           </h1>
           <p className="mt-3 text-base sm:text-lg text-neutral-500">
-            Borrow tools, cameras, and more from neighbors nearby.
+            Browse tools, cameras, and more listed by people in your community.
             Every listing shows its per-day rental price.
           </p>
         </div>

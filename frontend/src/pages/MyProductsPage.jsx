@@ -215,7 +215,7 @@ export default function MyProductsPage() {
             </div>
             <h2 className="mt-5 font-display text-2xl font-semibold text-navy-900">No products yet</h2>
             <p className="mx-auto mt-2 max-w-md text-[15px] text-neutral-500">
-              You have not listed any items. Add your first listing to start lending to people nearby.
+              You have not listed any items. Add your first listing to show what you own.
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/products/new" className="w-full sm:w-auto">
@@ -235,8 +235,8 @@ export default function MyProductsPage() {
             </h2>
             <p className="mx-auto mt-2 max-w-md text-[15px] text-neutral-500">
               {filter === 'published'
-                ? 'Publish a listing from the Unpublished tab to make it visible to borrowers.'
-                : 'Every listing is currently published. Unpublish one when you need to pause lending.'}
+                ? 'Publish a listing from the Unpublished tab to make it visible in the catalog.'
+                : 'Every listing is currently published. Unpublish one when you need to pause your listing.'}
             </p>
             <Button variant="outline" className="mt-5 bg-white" onClick={() => setFilter('all')}>
               View all listings

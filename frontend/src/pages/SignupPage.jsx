@@ -7,6 +7,9 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
 import { Logo } from '../components/ui/Logo.jsx'
 
+const MIN_PASSWORD_LENGTH = 8
+const MAX_PASSWORD_LENGTH = 128
+
 export default function SignupPage() {
   const navigate = useNavigate()
   const { signup } = useAuth()
@@ -37,7 +40,8 @@ export default function SignupPage() {
     if (!formData.email) newErrors.email = 'Email is required'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Enter a valid email address'
     if (!formData.password) newErrors.password = 'Password is required'
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters'
+    else if (formData.password.length < MIN_PASSWORD_LENGTH) newErrors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+    else if (formData.password.length > MAX_PASSWORD_LENGTH) newErrors.password = `Password cannot exceed ${MAX_PASSWORD_LENGTH} characters`
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password'
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'
     setErrors(newErrors)
@@ -72,7 +76,7 @@ export default function SignupPage() {
         <Card className="p-6 sm:p-8">
           <CardHeader className="text-center">
             <CardTitle className="font-display text-2xl">Create an account</CardTitle>
-            <CardDescription>Join BorrowBox and start borrowing today</CardDescription>
+            <CardDescription>Join BorrowBox to browse and list items</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -108,7 +112,8 @@ export default function SignupPage() {
                   error={errors.password}
                   placeholder="Create a password"
                   autoComplete="new-password"
-                  helperText="At least 6 characters"
+                  helperText={`At least ${MIN_PASSWORD_LENGTH} characters (maximum ${MAX_PASSWORD_LENGTH})`}
+                  maxLength={MAX_PASSWORD_LENGTH}
                   disabled={isLoading}
                 />
                 <button
@@ -129,22 +134,9 @@ export default function SignupPage() {
                 error={errors.confirmPassword}
                 placeholder="Repeat your password"
                 autoComplete="new-password"
+                maxLength={MAX_PASSWORD_LENGTH}
                 disabled={isLoading}
               />
-              <div className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  required
-                  className="mt-1 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
-                />
-                <label htmlFor="terms" className="text-sm text-neutral-500">
-                  I agree to the{' '}
-                  <Link to="/terms" className="font-medium text-primary-600 hover:text-primary-700">Terms of Service</Link>
-                  {' '}and{' '}
-                  <Link to="/privacy" className="font-medium text-primary-600 hover:text-primary-700">Privacy Policy</Link>
-                </label>
-              </div>
               {submitError && (
                 <div className="rounded-xl border border-error-500/30 bg-error-50 px-4 py-3 text-sm text-error-700" role="alert">
                   {submitError}
@@ -165,7 +157,7 @@ export default function SignupPage() {
           </CardFooter>
         </Card>
         <p className="mt-6 text-center text-[13px] text-neutral-500">
-          Free to join. Borrow nearby and lend what you own.
+          Free to join. Browse local listings and lend what you own.
         </p>
       </div>
     </div>

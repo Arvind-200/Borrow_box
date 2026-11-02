@@ -6,7 +6,6 @@ import { useToast } from '../components/ui/Toast.jsx'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
-import { StarRating } from '../components/ui/StarRating'
 import { ProductCategoryIcon, getCategoryGradient } from '../components/product/productVisuals'
 
 const conditionLabels = {
@@ -101,8 +100,6 @@ export default function ProductDetailPage() {
   const categoryName = product.category?.name || 'Uncategorized'
   const categorySlug = product.category?.slug || product.category?.id
   const isAvailable = product.availability === 'available'
-  const ratingAverage = Number(product.rating?.average || 0)
-  const reviewCount = Number(product.rating?.count || 0)
   const ownerName = product.owner?.name || 'BorrowBox member'
   const listedDate = product.createdAt
     ? new Date(product.createdAt).toLocaleDateString(undefined, {
@@ -215,14 +212,7 @@ export default function ProductDetailPage() {
             </h1>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <StarRating
-                rating={ratingAverage}
-                size="md"
-                showRating={reviewCount > 0}
-                showCount={reviewCount > 0}
-                reviewCount={reviewCount}
-              />
-              {reviewCount === 0 && <span className="text-sm text-neutral-500">No reviews yet</span>}
+              <span className="text-sm text-neutral-500">Reviews coming soon</span>
               <span className="inline-flex items-center gap-1.5 text-sm text-neutral-500">
                 <svg className="h-4 w-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -264,14 +254,14 @@ export default function ProductDetailPage() {
                 {!isAvailable
                   ? 'Currently unavailable'
                   : isAuthenticated
-                    ? 'Request to Borrow'
-                    : 'Log in to request'}
+                    ? 'Borrow requests coming soon'
+                    : 'Log in to continue'}
               </Button>
 
               <p className="mt-3 text-center text-sm text-neutral-500">
                 {isAuthenticated
-                  ? 'The owner will review your request before pickup.'
-                  : 'Sign in to send a borrow request to the owner.'}
+                  ? 'Borrow requests are not available yet.'
+                  : 'Sign in to manage your listings. Borrow requests are coming soon.'}
               </p>
             </div>
 

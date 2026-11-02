@@ -5,16 +5,16 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 const points = [
   {
-    title: 'Save money',
-    description: 'Rent what you need for a few days instead of buying it new.',
+    title: 'Compare prices',
+    description: 'See the per-day rental price on each listing.',
   },
   {
     title: 'Reduce waste',
-    description: 'Give good items a second life in your own neighborhood.',
+    description: 'Give good items a second life locally.',
   },
   {
     title: 'Build community',
-    description: 'Borrow and lend with trusted neighbors near you.',
+    description: 'Browse and list items with people in your community.',
   },
 ]
 
@@ -29,11 +29,12 @@ export default function AboutPage() {
             About Us
           </span>
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-navy-900">
-            Lend less waste, borrow what you need from trusted neighbors.
+            A local marketplace for listing and discovering items.
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-base text-neutral-500">
-            BorrowBox is a local peer-to-peer marketplace where one neighbor
-            lists an item and another nearby neighbor borrows it for a short time.
+            BorrowBox lets people list items with a pickup area so others can
+            browse what is available in the community. Borrow requests, returns,
+            and reviews are planned for future phases.
           </p>
         </div>
 

@@ -45,7 +45,6 @@ export default function LoginPage() {
     if (!formData.email) newErrors.email = 'Email is required'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Enter a valid email address'
     if (!formData.password) newErrors.password = 'Password is required'
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -79,7 +78,7 @@ export default function LoginPage() {
         <Card className="p-6 sm:p-8">
           <CardHeader className="text-center">
             <CardTitle className="font-display text-2xl">Welcome back</CardTitle>
-            <CardDescription>Sign in to borrow and lend with neighbors</CardDescription>
+            <CardDescription>Sign in to list and manage your items</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -115,18 +114,6 @@ export default function LoginPage() {
                   {showPassword ? 'Hide password' : 'Show password'}
                 </button>
               </div>
-              <div className="flex items-center justify-between gap-3">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="text-sm text-neutral-500">Remember me</span>
-                </label>
-                <Link to="/forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-700 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
-                  Forgot password?
-                </Link>
-              </div>
               {submitError && (
                 <div className="rounded-xl border border-error-500/30 bg-error-50 px-4 py-3 text-sm text-error-700" role="alert">
                   {submitError}
@@ -147,7 +134,7 @@ export default function LoginPage() {
           </CardFooter>
         </Card>
         <p className="mt-6 text-center text-[13px] text-neutral-500">
-          Protected by community guidelines and reporting &amp; safety tools.
+          Passwords are hashed and sessions use an HttpOnly cookie.
         </p>
       </div>
     </div>

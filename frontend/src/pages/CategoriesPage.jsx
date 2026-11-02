@@ -42,7 +42,7 @@ export default function CategoriesPage() {
             Browse by category
           </h1>
           <p className="mt-3 text-base sm:text-lg text-neutral-500">
-            Pick a category to see matching items available near you.
+            Pick a category to browse matching listings.
           </p>
         </div>
 

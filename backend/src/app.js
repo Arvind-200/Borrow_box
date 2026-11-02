@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import helmet from 'helmet'
 import { config } from './config/env.js'
 import healthRoutes from './routes/health.js'
 import authRoutes from './routes/auth.js'
@@ -8,6 +9,9 @@ import productRoutes from './routes/products.js'
 import categoryRoutes from './routes/categories.js'
 
 const app = express()
+
+app.disable('x-powered-by')
+app.use(helmet())
 
 app.use(cors({
   origin: config.frontendUrl,

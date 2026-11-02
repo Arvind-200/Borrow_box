@@ -11,8 +11,8 @@ import { api } from '../services/api'
 const steps = [
   {
     step: 'Step 1',
-    title: 'Find an item nearby',
-    description: 'Search tools, cameras, camping gear and more listed by neighbors around you.',
+    title: 'Browse local listings',
+    description: 'Search tools, cameras, camping gear and more in the catalog.',
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -21,8 +21,8 @@ const steps = [
   },
   {
     step: 'Step 2',
-    title: 'Send a borrow request',
-    description: 'Pick your dates and send a request. The owner can accept or decline.',
+    title: 'Check the item details',
+    description: 'Review condition, price, description, and pickup area before you decide.',
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -31,8 +31,8 @@ const steps = [
   },
   {
     step: 'Step 3',
-    title: 'Pick it up and return it',
-    description: 'Meet nearby, use the item, and return it on time to keep trust high.',
+    title: 'Borrow requests are coming next',
+    description: 'Sending requests, owner approval, and returns are not available yet.',
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -41,41 +41,41 @@ const steps = [
   },
 ]
 
-const trustItems = [
+const platformItems = [
   {
-    title: 'Verified Profiles',
-    description: 'Borrow and lend with people who stand behind their identity.',
+    title: 'Browse local listings',
+    description: 'Search the catalog and see each listing pickup area.',
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
     ),
   },
   {
-    title: 'Ratings & Reviews',
-    description: 'Two-way reviews keep borrowers and lenders accountable.',
+    title: 'Manage your listings',
+    description: 'Create, edit, publish, and unpublish your own items.',
     icon: (
-      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
     ),
   },
   {
-    title: 'Community Guidelines',
-    description: 'Clear, respectful rules for every borrow and every listing.',
+    title: 'Secure accounts',
+    description: 'Passwords are hashed and sessions use HttpOnly cookies.',
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
     ),
   },
   {
-    title: 'Reporting & Safety',
-    description: 'Report a listing anytime and get help when something feels off.',
+    title: 'Borrow requests',
+    description: 'Requesting, accepting, and returning items are not available yet.',
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     ),
   },
 ]
 
 const benefits = [
   {
-    title: 'Save money',
-    description: 'Rent what you need for days, not the full price of buying it new.',
+    title: 'Compare prices',
+    description: 'See daily rental prices for items you may only need for a few days.',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     ),
@@ -89,7 +89,7 @@ const benefits = [
   },
   {
     title: 'Build community',
-    description: 'Meet trusted neighbors and share skills, tools, and stories.',
+    description: 'Browse listings from other members and list your own items.',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
     ),
@@ -193,16 +193,16 @@ export default function LandingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white px-4 py-1.5 text-[13px] font-semibold text-primary-700 shadow-sm">
               <span className="h-2 w-2 rounded-full bg-primary-500" aria-hidden="true" />
-              Your neighborhood rental marketplace
+              A local marketplace for item listings
             </span>
             <h1 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] tracking-tight text-navy-900">
-              Borrow what you need.
+              Find local listings.
               <br />
               <span className="text-primary-600">Lend what you have.</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-neutral-500">
-              Lend less waste, borrow what you need from trusted neighbors. Save money,
-              reduce waste, and find tools, cameras, and camping gear close to home.
+              Browse local listings, compare daily prices, and reduce waste. Borrow
+              requests, returns, and reviews are coming in future phases.
             </p>
             <div className="mx-auto mt-7 max-w-2xl">
               <SearchBar variant="full" placeholder="Search items: tools, cameras, camping gear..." />
@@ -222,15 +222,15 @@ export default function LandingPage() {
             <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-neutral-500">
               <span className="inline-flex items-center gap-1.5">
                 <svg className="h-4 w-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Verified profiles
+                Browse without an account
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <svg className="h-4 w-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.075 9.307c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
-                Ratings &amp; reviews
+                <svg className="h-4 w-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                Owner-managed listings
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <svg className="h-4 w-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                Nearby pickup
+                <svg className="h-4 w-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                Secure account sessions
               </span>
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="Categories"
               title="Browse by category"
-              description="Trusted categories from neighbors near you."
+              description="Browse items by category in the local marketplace."
             />
           </div>
           {categoriesStatus === 'loading' && (
@@ -292,10 +292,10 @@ export default function LandingPage() {
                 Marketplace
               </span>
               <h2 id="popular-heading" className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-navy-900">
-                Popular items near you
+                Recent listings
               </h2>
               <p className="mt-3 text-base sm:text-lg text-neutral-500">
-                Available listings from your local community.
+                Available items from the community catalog.
               </p>
             </div>
             <Link
@@ -320,7 +320,7 @@ export default function LandingPage() {
             <ProductGrid
               products={products}
               emptyMessage="No listings available yet"
-              emptyDescription="Check back soon as neighbors add items to BorrowBox."
+              emptyDescription="Check back soon as members add items to BorrowBox."
             />
           )}
         </div>
@@ -332,8 +332,8 @@ export default function LandingPage() {
           <div id="how-heading">
             <SectionHeading
               eyebrow="How it works"
-              title="Borrowing made simple"
-              description="Three steps from search to return."
+              title="What you can do today"
+              description="Browse listings and manage your items now. Borrow requests come next."
             />
           </div>
           <ol className="grid grid-cols-1 gap-5 md:grid-cols-3" role="list">
@@ -358,19 +358,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Trust and safety */}
-      <section className="bg-navy-900 py-14 sm:py-16" aria-labelledby="trust-heading">
+      {/* Platform status */}
+      <section className="bg-navy-900 py-14 sm:py-16" aria-labelledby="platform-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div id="trust-heading">
+          <div id="platform-heading">
             <SectionHeading
               dark
-              eyebrow="Trust & Safety"
-              title="A marketplace you can trust"
-              description="Safety is built into every borrow, listing, and review."
+              eyebrow="Platform Status"
+              title="What works today"
+              description="These features are available now. Requests, reviews, reporting, and admin tools are still planned."
             />
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {trustItems.map((item) => (
+            {platformItems.map((item) => (
               <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 transition-colors hover:border-primary-500/40">
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500/15 text-primary-300">
                   {item.icon}
@@ -389,8 +389,8 @@ export default function LandingPage() {
           <div id="community-heading">
             <SectionHeading
               eyebrow="Community"
-              title="Borrow nearby, share locally"
-              description="Why neighbors choose BorrowBox every week."
+              title="Browse locally, list locally"
+              description="How BorrowBox supports browsing and listing items."
             />
           </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -414,10 +414,11 @@ export default function LandingPage() {
           <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-navy-900/20 blur-2xl" aria-hidden="true" />
           <div className="relative mx-auto max-w-2xl">
             <h2 id="cta-heading" className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white">
-              Ready to borrow from your neighbors?
+              Ready to browse or list locally?
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base sm:text-lg text-white/80">
               Join BorrowBox free. Browse local items or list something you own today.
+              Borrow requests are coming soon.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link to="/browse" className="w-full sm:w-auto">
