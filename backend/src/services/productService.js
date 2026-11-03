@@ -1,6 +1,7 @@
 import { Product } from '../models/Product.js'
 import { Category } from '../models/Category.js'
 import { ApiError } from '../utils/apiError.js'
+import { getNearbyAreaNames } from '../config/areaNeighbors.js'
 
 // API IDs are 24-character hex strings. Anything else is treated as a slug.
 const OBJECT_ID_REGEX = /^[a-f0-9]{24}$/i
@@ -24,6 +25,10 @@ const PUBLIC_FILTER = {
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function normalizeArea(value) {
+  return typeof value === 'string' ? value.trim().toLowerCase() : ''
 }
 
 function toPublicProduct(product) {
@@ -89,7 +94,14 @@ async function resolveCategoryFilter(categoryParam) {
   return category._id
 }
 
-export async function listProducts({ q, category, minPrice, maxPrice, sort, page, limit }) {
+async function buildCatalogFilter({
+  q,
+  category,
+  minPrice,
+  maxPrice,
+  availability,
+  location,
+}) {
   const filter = { ...PUBLIC_FILTER }
 
   if (category) {
@@ -127,6 +139,37 @@ export async function listProducts({ q, category, minPrice, maxPrice, sort, page
     filter.$or = searchConditions
   }
 
+  if (availability) {
+    filter.availability = availability
+  }
+
+  if (location) {
+    filter.location = new RegExp(`^${escapeRegex(location)}$`, 'i')
+  }
+
+  return filter
+}
+
+export async function listProducts({
+  q,
+  category,
+  minPrice,
+  maxPrice,
+  availability,
+  location,
+  sort,
+  page,
+  limit,
+}) {
+  const filter = await buildCatalogFilter({
+    q,
+    category,
+    minPrice,
+    maxPrice,
+    availability,
+    location,
+  })
+
   const skip = (page - 1) * limit
 
   const [documents, total] = await Promise.all([
@@ -151,6 +194,60 @@ export async function listProducts({ q, category, minPrice, maxPrice, sort, page
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1 && totalPages > 0,
     },
+  }
+}
+
+export async function listProductLocations({
+  q,
+  category,
+  minPrice,
+  maxPrice,
+  availability,
+  nearbyFor,
+}) {
+  const filter = await buildCatalogFilter({
+    q,
+    category,
+    minPrice,
+    maxPrice,
+    availability,
+  })
+
+  const rows = await Product.aggregate([
+    {
+      $match: {
+        ...filter,
+        location: { $type: 'string', $ne: '' },
+      },
+    },
+    {
+      $group: {
+        _id: { $toLower: { $trim: { input: '$location' } } },
+        name: { $first: { $trim: { input: '$location' } } },
+        count: { $sum: 1 },
+      },
+    },
+  ])
+
+  const locations = rows
+    .map((row) => ({
+      name: row.name,
+      count: row.count,
+    }))
+    .sort((left, right) =>
+      left.name.localeCompare(right.name, undefined, { sensitivity: 'base' })
+    )
+
+  const countByArea = new Map(rows.map((row) => [row._id, row.count]))
+  const nearbyAreas = getNearbyAreaNames(nearbyFor).map((name) => ({
+    name,
+    count: countByArea.get(normalizeArea(name)) || 0,
+  }))
+
+  return {
+    locations,
+    nearbyAreas,
+    count: locations.length,
   }
 }
 

@@ -56,6 +56,8 @@ export const api = {
   logout: () => request('/auth/logout', { method: 'POST' }),
   getCategories: () => request('/categories'),
   getProducts: (params = {}) => request(`/products${toQueryString(params)}`),
+  getProductLocations: (params = {}) =>
+    request(`/products/locations${toQueryString(params)}`),
   getProduct: (id) => request(`/products/${encodeURIComponent(id)}`),
   getMyProducts: () => request('/products/mine'),
   getMyProduct: (id) => request(`/products/mine/${encodeURIComponent(id)}`),

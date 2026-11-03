@@ -1,10 +1,14 @@
-import { parseProductQuery } from '../validators/productQuery.js'
+import {
+  parseProductQuery,
+  parseLocationQuery,
+} from '../validators/productQuery.js'
 import {
   parseProductInput,
   parsePublicationInput,
 } from '../validators/productInput.js'
 import {
   listProducts as listProductsService,
+  listProductLocations as listProductLocationsService,
   getProductById as getProductByIdService,
   listOwnedProducts as listOwnedProductsService,
   getOwnedProduct as getOwnedProductService,
@@ -17,6 +21,16 @@ export async function listProducts(req, res, next) {
   try {
     const params = parseProductQuery(req.query)
     const result = await listProductsService(params)
+    res.status(200).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function listProductLocations(req, res, next) {
+  try {
+    const params = parseLocationQuery(req.query)
+    const result = await listProductLocationsService(params)
     res.status(200).json(result)
   } catch (error) {
     next(error)

@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   getProduct,
   listProducts,
+  listProductLocations,
   listMyProducts,
   getMyProduct,
   createProduct,
@@ -12,6 +13,7 @@ import { requireAuth } from '../middleware/auth.js'
 
 const router = Router()
 
+router.get('/locations', listProductLocations)
 router.get('/mine', requireAuth, listMyProducts)
 router.get('/mine/:id', requireAuth, getMyProduct)
 router.post('/', requireAuth, createProduct)

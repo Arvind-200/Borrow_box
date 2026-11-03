@@ -32,16 +32,30 @@ function normalizeSort(value) {
   return SORT_OPTIONS.some((option) => option.value === value) ? value : 'recommended'
 }
 
+function normalizeAvailability(value) {
+  return value === 'available' || value === 'unavailable' ? value : ''
+}
+
 export default function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [query, setQuery] = useState(() => searchParams.get('q') || '')
   const [category, setCategory] = useState(() => searchParams.get('category') || '')
+  const [location, setLocation] = useState(() => searchParams.get('location') || '')
+  const [availability, setAvailability] = useState(() =>
+    normalizeAvailability(searchParams.get('availability') || '')
+  )
   const [minPrice, setMinPrice] = useState(() => searchParams.get('min') || '')
   const [maxPrice, setMaxPrice] = useState(() => searchParams.get('max') || '')
   const [sort, setSort] = useState(() => normalizeSort(searchParams.get('sort') || ''))
   const [page, setPage] = useState(() => parsePage(searchParams.get('page')))
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const [areas, setAreas] = useState([])
+  const [nearbyAreas, setNearbyAreas] = useState([])
+  const [areasStatus, setAreasStatus] = useState('loading')
+  const [areasError, setAreasError] = useState('')
+  const [areasReloadKey, setAreasReloadKey] = useState(0)
 
   const [categories, setCategories] = useState([])
   const [categoriesStatus, setCategoriesStatus] = useState('loading')
@@ -57,6 +71,8 @@ export default function BrowsePage() {
   useEffect(() => {
     setQuery(searchParams.get('q') || '')
     setCategory(searchParams.get('category') || '')
+    setLocation(searchParams.get('location') || '')
+    setAvailability(normalizeAvailability(searchParams.get('availability') || ''))
     setMinPrice(searchParams.get('min') || '')
     setMaxPrice(searchParams.get('max') || '')
     setSort(normalizeSort(searchParams.get('sort') || ''))
@@ -67,6 +83,8 @@ export default function BrowsePage() {
     const params = {}
     if (query.trim()) params.q = query.trim()
     if (category) params.category = category
+    if (location.trim()) params.location = location.trim()
+    if (availability) params.availability = availability
     if (minPrice.trim()) params.min = minPrice.trim()
     if (maxPrice.trim()) params.max = maxPrice.trim()
     if (sort !== 'recommended') params.sort = sort
@@ -76,7 +94,18 @@ export default function BrowsePage() {
     if (searchParams.toString() !== next) {
       setSearchParams(next, { replace: true })
     }
-  }, [query, category, minPrice, maxPrice, sort, page, searchParams, setSearchParams])
+  }, [
+    query,
+    category,
+    location,
+    availability,
+    minPrice,
+    maxPrice,
+    sort,
+    page,
+    searchParams,
+    setSearchParams,
+  ])
 
   useEffect(() => {
     let active = true
@@ -109,6 +138,53 @@ export default function BrowsePage() {
 
   useEffect(() => {
     if (priceError) {
+      setAreasStatus('success')
+      return
+    }
+
+    let active = true
+    setAreasStatus('loading')
+    setAreasError('')
+
+    const timer = setTimeout(() => {
+      api.getProductLocations({
+        q: query.trim() || undefined,
+        category: category || undefined,
+        minPrice: validMin,
+        maxPrice: validMax,
+        availability: availability || undefined,
+        nearbyFor: location.trim() || undefined,
+      })
+        .then((data) => {
+          if (!active) return
+          setAreas(data.locations || [])
+          setNearbyAreas(data.nearbyAreas || [])
+          setAreasStatus('success')
+        })
+        .catch((err) => {
+          if (!active) return
+          setAreasError(err.message || 'Unable to load areas.')
+          setAreasStatus('error')
+        })
+    }, query.trim() ? 250 : 0)
+
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [
+    query,
+    category,
+    availability,
+    location,
+    validMin,
+    validMax,
+    priceError,
+    areasReloadKey,
+  ])
+
+  useEffect(() => {
+    if (priceError) {
       setProducts([])
       setPagination(null)
       setError('')
@@ -124,6 +200,8 @@ export default function BrowsePage() {
       api.getProducts({
         q: query.trim() || undefined,
         category: category || undefined,
+        location: location.trim() || undefined,
+        availability: availability || undefined,
         minPrice: validMin,
         maxPrice: validMax,
         sort,
@@ -157,7 +235,18 @@ export default function BrowsePage() {
       active = false
       clearTimeout(timer)
     }
-  }, [query, category, validMin, validMax, sort, page, priceError, reloadKey])
+  }, [
+    query,
+    category,
+    location,
+    availability,
+    validMin,
+    validMax,
+    sort,
+    page,
+    priceError,
+    reloadKey,
+  ])
 
   const categoryLabel =
     categories.find((item) => item.slug === category || item.id === category)?.name ||
@@ -171,12 +260,33 @@ export default function BrowsePage() {
   const activeFilters = []
   if (query.trim()) activeFilters.push({ key: 'q', label: `"${query.trim()}"` })
   if (category) activeFilters.push({ key: 'category', label: categoryLabel })
+  if (location.trim()) activeFilters.push({ key: 'location', label: `Area: ${location.trim()}` })
+  if (availability) {
+    activeFilters.push({
+      key: 'availability',
+      label: availability === 'available' ? 'Available only' : 'Unavailable only',
+    })
+  }
   if (validMin !== undefined || validMax !== undefined) {
     activeFilters.push({
       key: 'price',
       label: `₹${validMin ?? 0} – ₹${validMax ?? '∞'}/day`,
     })
   }
+
+  const selectedLocation = location.trim()
+  const selectedAreaInOptions = areas.some(
+    (area) => area.name === selectedLocation
+  )
+  const areaOptions =
+    selectedLocation && !selectedAreaInOptions
+      ? [{ name: selectedLocation, count: 0 }, ...areas]
+      : areas
+  const nearbySuggestions = nearbyAreas.filter(
+    (area) =>
+      area.count > 0 &&
+      area.name.toLowerCase() !== selectedLocation.toLowerCase()
+  )
 
   const updateQuery = (value) => {
     setQuery(value)
@@ -185,6 +295,16 @@ export default function BrowsePage() {
 
   const updateCategory = (value) => {
     setCategory(value)
+    setPage(1)
+  }
+
+  const updateLocation = (value) => {
+    setLocation(value)
+    setPage(1)
+  }
+
+  const updateAvailability = (value) => {
+    setAvailability(value)
     setPage(1)
   }
 
@@ -206,6 +326,8 @@ export default function BrowsePage() {
   const clearAll = () => {
     setQuery('')
     setCategory('')
+    setLocation('')
+    setAvailability('')
     setMinPrice('')
     setMaxPrice('')
     setSort('recommended')
@@ -215,6 +337,8 @@ export default function BrowsePage() {
   const removeFilter = (key) => {
     if (key === 'q') setQuery('')
     if (key === 'category') setCategory('')
+    if (key === 'location') setLocation('')
+    if (key === 'availability') setAvailability('')
     if (key === 'price') {
       setMinPrice('')
       setMaxPrice('')
@@ -282,6 +406,68 @@ export default function BrowsePage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section aria-labelledby="filter-area">
+        <h3 id="filter-area" className="text-sm font-semibold uppercase tracking-wider text-navy-900">
+          Area
+        </h3>
+        <label htmlFor="filter-area-select" className="sr-only">
+          Filter by area
+        </label>
+        <select
+          id="filter-area-select"
+          value={selectedLocation}
+          onChange={(e) => updateLocation(e.target.value)}
+          className="mt-3 w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-[15px] font-medium text-navy-900 shadow-sm transition-colors hover:border-neutral-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        >
+          <option value="">All areas</option>
+          {areaOptions.map((area) => (
+            <option key={area.name} value={area.name}>
+              {area.name}
+              {area.count > 0 ? ` (${area.count})` : ''}
+            </option>
+          ))}
+        </select>
+        {areasStatus === 'loading' && (
+          <p className="mt-2 text-sm text-neutral-500" role="status">
+            Loading areas...
+          </p>
+        )}
+        {areasStatus === 'error' && (
+          <div className="mt-2">
+            <p className="text-sm text-neutral-500" role="alert">
+              {areasError}
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2 px-0"
+              onClick={() => setAreasReloadKey((key) => key + 1)}
+            >
+              Retry areas
+            </Button>
+          </div>
+        )}
+      </section>
+
+      <section aria-labelledby="filter-availability">
+        <h3 id="filter-availability" className="text-sm font-semibold uppercase tracking-wider text-navy-900">
+          Availability
+        </h3>
+        <label htmlFor="filter-availability-select" className="sr-only">
+          Filter by availability
+        </label>
+        <select
+          id="filter-availability-select"
+          value={availability}
+          onChange={(e) => updateAvailability(e.target.value)}
+          className="mt-3 w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-[15px] font-medium text-navy-900 shadow-sm transition-colors hover:border-neutral-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        >
+          <option value="">All availability</option>
+          <option value="available">Available only</option>
+          <option value="unavailable">Unavailable only</option>
+        </select>
       </section>
 
       <section aria-labelledby="filter-price">
@@ -472,16 +658,50 @@ export default function BrowsePage() {
                   </svg>
                 </div>
                 <h2 className="font-display text-xl font-semibold text-navy-900">
-                  No items match your filters
+                  {selectedLocation
+                    ? `No items in ${selectedLocation}`
+                    : 'No items match your filters'}
                 </h2>
                 <p className="mt-2 max-w-sm text-[15px] text-neutral-500">
                   {priceError
                     ? 'The minimum price is higher than the maximum price. Adjust the range or clear your filters.'
-                    : 'Try a different search term, category, or price range.'}
+                    : selectedLocation
+                      ? 'No listings in this exact area match your current filters.'
+                      : 'Try a different search term, category, or price range.'}
                 </p>
-                <Button onClick={clearAll} className="mt-6">
-                  Clear all filters
-                </Button>
+                {!priceError && selectedLocation && nearbySuggestions.length > 0 && (
+                  <div className="mt-6 w-full max-w-md">
+                    <p className="text-sm font-semibold text-navy-900">
+                      Nearby areas with matching items
+                    </p>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                      {nearbySuggestions.map((area) => (
+                        <button
+                          key={area.name}
+                          type="button"
+                          onClick={() => updateLocation(area.name)}
+                          className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700 transition-colors hover:border-primary-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        >
+                          {area.name} ({area.count})
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                  {selectedLocation && (
+                    <Button
+                      variant="outline"
+                      className="w-full bg-white sm:w-auto"
+                      onClick={() => updateLocation('')}
+                    >
+                      All areas
+                    </Button>
+                  )}
+                  <Button onClick={clearAll} className="w-full sm:w-auto">
+                    Clear all filters
+                  </Button>
+                </div>
               </div>
             )}
           </div>

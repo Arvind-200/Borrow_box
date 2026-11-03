@@ -43,11 +43,11 @@
 - image handling
 
 ## Phase 5 - Search
-- text search
-- category filter
-- price filter
-- availability
-- area/location relevance
+- [x] text search
+- [x] category filter
+- [x] price filter
+- [x] availability
+- [x] exact area/location filter, area options endpoint, and nearby-ready empty state
 
 ## Phase 6 - Borrow workflow
 - create request
