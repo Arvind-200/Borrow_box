@@ -6,6 +6,7 @@ import {
   parseProductInput,
   parsePublicationInput,
 } from '../validators/productInput.js'
+import { ApiError } from '../utils/apiError.js'
 import {
   listProducts as listProductsService,
   listProductLocations as listProductLocationsService,
@@ -16,6 +17,20 @@ import {
   updateOwnedProduct as updateOwnedProductService,
   updateOwnedProductPublication as updateOwnedProductPublicationService,
 } from '../services/productService.js'
+
+export async function uploadProductImage(req, res, next) {
+  try {
+    if (!req.file) {
+      throw new ApiError(400, 'An image file is required')
+    }
+
+    res.status(201).json({
+      url: `/uploads/products/${req.file.filename}`,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 
 export async function listProducts(req, res, next) {
   try {

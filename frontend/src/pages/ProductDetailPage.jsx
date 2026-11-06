@@ -29,6 +29,8 @@ export default function ProductDetailPage() {
   const [reloadKey, setReloadKey] = useState(0)
   const [isRequestOpen, setIsRequestOpen] = useState(false)
   const [requestSent, setRequestSent] = useState(false)
+  const [activeRequest, setActiveRequest] = useState(null)
+  const [isActiveRequestLoading, setIsActiveRequestLoading] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -55,6 +57,50 @@ export default function ProductDetailPage() {
       active = false
     }
   }, [id, reloadKey])
+
+  useEffect(() => {
+    if (isAuthLoading || !isAuthenticated || !product?.id) {
+      setActiveRequest(null)
+      setIsActiveRequestLoading(false)
+      return undefined
+    }
+
+    const ownerId = product.owner?.id
+    if (ownerId && user?.id && String(ownerId) === String(user.id)) {
+      setActiveRequest(null)
+      setIsActiveRequestLoading(false)
+      return undefined
+    }
+
+    let active = true
+    setIsActiveRequestLoading(true)
+
+    api.getMyBorrowRequests({ product: product.id, limit: 50 })
+      .then((data) => {
+        if (!active) return
+        const match = (data.requests || []).find(
+          (request) =>
+            request.status === 'Pending' || request.status === 'Accepted'
+        )
+        setActiveRequest(match || null)
+      })
+      .catch(() => {
+        if (active) setActiveRequest(null)
+      })
+      .finally(() => {
+        if (active) setIsActiveRequestLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [
+    isAuthLoading,
+    isAuthenticated,
+    product?.id,
+    product?.owner?.id,
+    user?.id,
+  ])
 
   if (status === 'loading') {
     return (
@@ -118,11 +164,13 @@ export default function ProductDetailPage() {
     Boolean(user?.id) &&
     Boolean(product.owner?.id) &&
     String(user.id) === String(product.owner.id)
+  const hasActiveRequest =
+    activeRequest?.status === 'Pending' || activeRequest?.status === 'Accepted'
 
   const returnPath = `${location.pathname}${location.search}`
 
   const handleBorrowRequest = () => {
-    if (isAuthLoading) return
+    if (isAuthLoading || isActiveRequestLoading || hasActiveRequest) return
 
     if (isOwner) {
       navigate(`/products/${product.id}/edit`)
@@ -139,9 +187,10 @@ export default function ProductDetailPage() {
     setIsRequestOpen(true)
   }
 
-  const handleRequestSuccess = () => {
+  const handleRequestSuccess = (request) => {
     setIsRequestOpen(false)
     setRequestSent(true)
+    setActiveRequest(request || { status: 'Pending' })
     toast.success(
       'Borrow request sent',
       'The owner can now accept or reject your request.'
@@ -150,17 +199,27 @@ export default function ProductDetailPage() {
 
   let actionLabel = 'Request to Borrow'
   if (isAuthLoading) actionLabel = 'Checking availability...'
+  else if (isActiveRequestLoading) actionLabel = 'Checking request...'
   else if (isOwner) actionLabel = 'Manage your listing'
-  else if (!isAvailable) actionLabel = 'Currently unavailable'
+  else if (hasActiveRequest) {
+    actionLabel =
+      activeRequest.status === 'Accepted'
+        ? 'Request accepted'
+        : 'Request pending'
+  } else if (!isAvailable) actionLabel = 'Currently unavailable'
   else if (!isAuthenticated) actionLabel = 'Log in to request'
 
   const helperText = isOwner
     ? 'You own this listing. Update details or manage the item from your listings.'
-    : !isAvailable
-      ? 'This item is already reserved or paused by its owner. Check back later.'
-      : isAuthenticated
-        ? 'Choose your dates and send a request. The owner decides whether to accept.'
-        : 'Sign in to send a borrow request for this item.'
+    : hasActiveRequest
+      ? activeRequest.status === 'Accepted'
+        ? 'Your borrow request for this item was accepted. See Requests for details.'
+        : 'You already sent a request for this item. The owner will accept or reject it.'
+      : !isAvailable
+        ? 'This item is already reserved or paused by its owner. Check back later.'
+        : isAuthenticated
+          ? 'Choose your dates and send a request. The owner decides whether to accept.'
+          : 'Sign in to send a borrow request for this item.'
 
   return (
     <div className="bg-[#F8FAFC]">
@@ -289,8 +348,13 @@ export default function ProductDetailPage() {
                 size="lg"
                 className="mt-6 w-full"
                 onClick={handleBorrowRequest}
-                disabled={isAuthLoading || (!isAvailable && !isOwner)}
-                loading={isAuthLoading}
+                disabled={
+                  isAuthLoading ||
+                  isActiveRequestLoading ||
+                  hasActiveRequest ||
+                  (!isAvailable && !isOwner)
+                }
+                loading={isAuthLoading || isActiveRequestLoading}
               >
                 {actionLabel}
               </Button>
@@ -299,7 +363,7 @@ export default function ProductDetailPage() {
                 {helperText}
               </p>
 
-              {requestSent && (
+              {(requestSent || hasActiveRequest) && (
                 <p className="mt-2 text-center text-sm">
                   <Link
                     to="/requests"

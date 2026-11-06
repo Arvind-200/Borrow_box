@@ -8,11 +8,14 @@ import {
   createProduct,
   updateProduct,
   updateProductPublication,
+  uploadProductImage,
 } from '../controllers/productController.js'
 import { requireAuth } from '../middleware/auth.js'
+import { uploadProductImage as uploadProductImageFile } from '../middleware/upload.js'
 
 const router = Router()
 
+router.post('/images', requireAuth, uploadProductImageFile, uploadProductImage)
 router.get('/locations', listProductLocations)
 router.get('/mine', requireAuth, listMyProducts)
 router.get('/mine/:id', requireAuth, getMyProduct)

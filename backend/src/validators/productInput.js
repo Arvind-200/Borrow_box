@@ -8,6 +8,11 @@ const OBJECT_ID_REGEX = /^[a-f0-9]{24}$/i
 const MAX_TAGS = 10
 const MAX_TAG_LENGTH = 30
 const MAX_RENT_PER_DAY = 1000000
+const MAX_IMAGES = 8
+const MAX_IMAGE_URL_LENGTH = 500
+const UPLOAD_PATH_REGEX =
+  /^\/uploads\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+\.[a-z0-9]+$/i
+const HTTP_URL_REGEX = /^https?:\/\/[^\s]+$/i
 
 function readText(value, name, { min, max, required = true }) {
   if (value === undefined || value === null) {
@@ -57,6 +62,53 @@ function readEnum(value, name, allowed, fallback) {
     throw new ApiError(400, `${name} must be one of: ${allowed.join(', ')}`)
   }
   return value
+}
+
+function isAllowedImageReference(value) {
+  return UPLOAD_PATH_REGEX.test(value) || HTTP_URL_REGEX.test(value)
+}
+
+function readImages(value) {
+  if (value === undefined || value === null) return []
+  if (!Array.isArray(value)) {
+    throw new ApiError(400, 'Images must be an array of image URLs')
+  }
+
+  const seen = new Set()
+  const images = []
+
+  for (const rawImage of value) {
+    if (typeof rawImage !== 'string') {
+      throw new ApiError(400, 'Images must be an array of image URLs')
+    }
+
+    const image = rawImage.trim()
+    if (!image) {
+      throw new ApiError(400, 'Image URLs cannot be empty')
+    }
+    if (image.length > MAX_IMAGE_URL_LENGTH) {
+      throw new ApiError(
+        400,
+        `Each image URL must be ${MAX_IMAGE_URL_LENGTH} characters or fewer`
+      )
+    }
+    if (!isAllowedImageReference(image)) {
+      throw new ApiError(
+        400,
+        'Each image must be an uploaded /uploads/ path or an http(s) URL'
+      )
+    }
+
+    if (seen.has(image)) continue
+    seen.add(image)
+    images.push(image)
+  }
+
+  if (images.length > MAX_IMAGES) {
+    throw new ApiError(400, `A listing can have at most ${MAX_IMAGES} images`)
+  }
+
+  return images
 }
 
 function readTags(value) {
@@ -116,6 +168,7 @@ export function parseProductInput(body) {
     ),
     condition: readEnum(body.condition, 'Condition', PRODUCT_CONDITIONS, 'good'),
     tags: readTags(body.tags),
+    images: readImages(body.images),
   }
 }
 

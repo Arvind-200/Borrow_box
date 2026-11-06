@@ -426,6 +426,42 @@ it('filters lists by status case-insensitively', async () => {
   assert.equal(pendingOnly.data.requests[0].status, 'Pending')
 })
 
+it('filters my requests by product', async () => {
+  const owner = await createUser()
+  const borrower = await createUser()
+  const productOne = await createProduct({ owner })
+  const productTwo = await createProduct({ owner })
+  const cookie = authCookie(borrower)
+
+  await apiRequest(serverContext.baseUrl, '/api/borrow-requests', {
+    method: 'POST',
+    cookie,
+    payload: createPayload(productOne._id),
+  })
+  await apiRequest(serverContext.baseUrl, '/api/borrow-requests', {
+    method: 'POST',
+    cookie,
+    payload: createPayload(productTwo._id),
+  })
+
+  const filtered = await apiRequest(
+    serverContext.baseUrl,
+    `/api/borrow-requests/my?product=${productOne._id}`,
+    { cookie }
+  )
+  assert.equal(filtered.response.status, 200)
+  assert.equal(filtered.data.requests.length, 1)
+  assert.equal(filtered.data.requests[0].product.id, String(productOne._id))
+  assert.equal(filtered.data.pagination.total, 1)
+
+  const invalid = await apiRequest(
+    serverContext.baseUrl,
+    '/api/borrow-requests/my?product=not-an-object-id',
+    { cookie }
+  )
+  assert.equal(invalid.response.status, 400)
+})
+
 it('paginates lists with a default of 20 and a maximum of 50', async () => {
   const owner = await createUser()
   const borrower = await createUser()

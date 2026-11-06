@@ -1,8 +1,13 @@
 const API_BASE = '/api'
 
+function isFormData(value) {
+  return typeof FormData !== 'undefined' && value instanceof FormData
+}
+
 async function request(path, { method = 'GET', body } = {}) {
   const headers = {}
-  if (body !== undefined) {
+  const isMultipart = isFormData(body)
+  if (body !== undefined && !isMultipart) {
     headers['Content-Type'] = 'application/json'
   }
 
@@ -12,7 +17,12 @@ async function request(path, { method = 'GET', body } = {}) {
       method,
       headers,
       credentials: 'include',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body:
+        body === undefined
+          ? undefined
+          : isMultipart
+            ? body
+            : JSON.stringify(body),
     })
   } catch {
     throw new Error('Unable to reach the server. Check your connection and try again.')
@@ -61,6 +71,11 @@ export const api = {
   getProduct: (id) => request(`/products/${encodeURIComponent(id)}`),
   getMyProducts: () => request('/products/mine'),
   getMyProduct: (id) => request(`/products/mine/${encodeURIComponent(id)}`),
+  uploadProductImage: (file) => {
+    const form = new FormData()
+    form.append('image', file)
+    return request('/products/images', { method: 'POST', body: form })
+  },
   createProduct: (payload) => request('/products', { method: 'POST', body: payload }),
   updateProduct: (id, payload) =>
     request(`/products/${encodeURIComponent(id)}`, { method: 'PUT', body: payload }),

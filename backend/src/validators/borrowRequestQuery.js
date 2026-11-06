@@ -3,6 +3,7 @@ import { BORROW_REQUEST_STATUSES } from '../models/BorrowRequest.js'
 
 const DEFAULT_PAGE_SIZE = 20
 const MAX_PAGE_SIZE = 50
+const OBJECT_ID_REGEX = /^[a-f0-9]{24}$/i
 
 const STATUS_BY_LOWER_CASE = new Map(
   BORROW_REQUEST_STATUSES.map((status) => [status.toLowerCase(), status])
@@ -50,6 +51,17 @@ function parseStatus(value) {
   return status
 }
 
+function parseProduct(value) {
+  const raw = readSingleString(value, 'product')
+  if (!raw) return undefined
+
+  if (!OBJECT_ID_REGEX.test(raw)) {
+    throw new ApiError(400, 'product must be a valid product id')
+  }
+
+  return raw
+}
+
 export function parseBorrowRequestQuery(query = {}) {
   return {
     page: parsePositiveInteger(query.page, 'page', 1),
@@ -60,5 +72,6 @@ export function parseBorrowRequestQuery(query = {}) {
       MAX_PAGE_SIZE
     ),
     status: parseStatus(query.status),
+    product: parseProduct(query.product),
   }
 }

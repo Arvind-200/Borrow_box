@@ -79,9 +79,10 @@ function buildListFilter(ownerId, status) {
   return filter
 }
 
-function buildBorrowerFilter(borrowerId, status) {
+function buildBorrowerFilter(borrowerId, status, product) {
   const filter = { borrower: borrowerId }
   if (status) filter.status = status
+  if (product) filter.product = product
   return filter
 }
 
@@ -174,7 +175,10 @@ export async function createBorrowRequest(borrowerId, input) {
 }
 
 export async function listMyBorrowRequests(borrowerId, query) {
-  return listRequests(buildBorrowerFilter(borrowerId, query.status), query)
+  return listRequests(
+    buildBorrowerFilter(borrowerId, query.status, query.product),
+    query
+  )
 }
 
 export async function listIncomingBorrowRequests(ownerId, query) {

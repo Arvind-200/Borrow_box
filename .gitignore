@@ -24,5 +24,8 @@ Thumbs.db
 **/dist/
 **/build/
 
+# User-uploaded files
+backend/uploads/
+
 # Testing
 **/coverage/

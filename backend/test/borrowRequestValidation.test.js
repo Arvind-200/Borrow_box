@@ -9,6 +9,7 @@ import {
   parseDateOnly,
   assertDateRangeOrder,
 } from '../src/utils/dateOnly.js'
+import { parseBorrowRequestQuery } from '../src/validators/borrowRequestQuery.js'
 
 const PRODUCT_ID = '665f1c2a9d3b4e0012a34567'
 
@@ -193,5 +194,30 @@ test('date-only helpers reject invalid values and ISO datetimes', () => {
   assertBadRequest(
     () => assertDateRangeOrder('2026-11-10', '2026-11-09'),
     /cannot be earlier/
+  )
+})
+
+test('parses an optional product filter for my requests', () => {
+  const result = parseBorrowRequestQuery({
+    product: ` ${PRODUCT_ID} `,
+    status: 'pending',
+  })
+
+  assert.deepEqual(result, {
+    page: 1,
+    limit: 20,
+    status: 'Pending',
+    product: PRODUCT_ID,
+  })
+})
+
+test('rejects invalid product filters', () => {
+  assertBadRequest(
+    () => parseBorrowRequestQuery({ product: 'not-an-object-id' }),
+    /valid product id/
+  )
+  assertBadRequest(
+    () => parseBorrowRequestQuery({ product: [PRODUCT_ID] }),
+    /single value/
   )
 })

@@ -23,5 +23,8 @@ npm-debug.log*
 # Build (if using TypeScript later)
 dist/
 
+# User-uploaded files
+uploads/
+
 # Testing
 coverage/

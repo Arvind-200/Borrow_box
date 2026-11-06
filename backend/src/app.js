@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.js'
 import productRoutes from './routes/products.js'
 import categoryRoutes from './routes/categories.js'
 import borrowRequestRoutes from './routes/borrowRequests.js'
+import { uploadsDir } from './middleware/upload.js'
 
 const app = express()
 
@@ -22,6 +23,8 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
+app.use('/uploads', express.static(uploadsDir))
 
 app.use('/api', healthRoutes)
 app.use('/api/auth', authRoutes)

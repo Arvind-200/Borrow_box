@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../services/api'
 import { Badge } from '../components/ui/Badge'
@@ -32,7 +32,11 @@ const EMPTY_FORM = {
   availability: 'available',
   description: '',
   tags: '',
+  images: [],
 }
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024
 
 const fieldClass =
   'w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-navy-900 transition-all duration-200 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500'
@@ -102,6 +106,13 @@ export default function ProductFormPage() {
   const [submitError, setSubmitError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
+  const [imageError, setImageError] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
+  const imagePreviewRef = useRef('')
+  const imageInputRef = useRef(null)
+
   const [categories, setCategories] = useState([])
   const [categoriesStatus, setCategoriesStatus] = useState('loading')
   const [categoriesError, setCategoriesError] = useState('')
@@ -155,6 +166,7 @@ export default function ProductFormPage() {
           availability: item.availability || 'available',
           description: item.description || '',
           tags: (item.tags || []).join(', '),
+          images: Array.isArray(item.images) ? item.images : [],
         })
         setProductStatus('success')
       })
@@ -169,6 +181,15 @@ export default function ProductFormPage() {
     }
   }, [id, isEdit, productReloadKey])
 
+  useEffect(() => {
+    return () => {
+      if (imagePreviewRef.current) {
+        URL.revokeObjectURL(imagePreviewRef.current)
+        imagePreviewRef.current = ''
+      }
+    }
+  }, [])
+
   const selectedCategory = useMemo(
     () => categories.find((category) => category.id === form.category),
     [categories, form.category]
@@ -177,6 +198,7 @@ export default function ProductFormPage() {
   const previewCategory = selectedCategory?.name || 'Category'
   const previewRent = Number(form.rentPerDay)
   const previewTags = parseTags(form.tags).slice(0, 2)
+  const previewImage = imagePreview || form.images?.[0] || ''
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -185,6 +207,46 @@ export default function ProductFormPage() {
       setErrors((current) => ({ ...current, [name]: undefined }))
     }
     if (submitError) setSubmitError('')
+  }
+
+  const clearImagePreview = () => {
+    if (imagePreviewRef.current) {
+      URL.revokeObjectURL(imagePreviewRef.current)
+      imagePreviewRef.current = ''
+    }
+    setImagePreview('')
+  }
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setImageError('Choose a JPEG, PNG, WebP, or GIF image.')
+      event.target.value = ''
+      return
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setImageError('Image must be 5 MB or smaller.')
+      event.target.value = ''
+      return
+    }
+
+    clearImagePreview()
+    const preview = URL.createObjectURL(file)
+    imagePreviewRef.current = preview
+    setImagePreview(preview)
+    setImageFile(file)
+    setImageError('')
+    if (submitError) setSubmitError('')
+  }
+
+  const handleRemoveImage = () => {
+    clearImagePreview()
+    setImageFile(null)
+    setImageError('')
+    if (imageInputRef.current) imageInputRef.current.value = ''
+    setForm((current) => ({ ...current, images: [] }))
   }
 
   const handleSubmit = async (event) => {
@@ -201,18 +263,38 @@ export default function ProductFormPage() {
     setSubmitError('')
     setIsSaving(true)
 
-    const payload = {
-      title: form.title.trim(),
-      category: form.category,
-      rentPerDay: Number(form.rentPerDay),
-      location: form.location.trim(),
-      condition: form.condition,
-      availability: form.availability,
-      description: form.description.trim(),
-      tags: parseTags(form.tags),
-    }
-
     try {
+      let images = form.images
+      if (imageFile) {
+        setIsUploading(true)
+        try {
+          const uploaded = await api.uploadProductImage(imageFile)
+          images = [uploaded.url]
+        } catch (error) {
+          setImageError(error.message || 'Unable to upload this image.')
+          setSubmitError('Image upload failed. Please try again.')
+          toast.error(
+            'Could not upload image',
+            error.message || 'Please try again.'
+          )
+          return
+        } finally {
+          setIsUploading(false)
+        }
+      }
+
+      const payload = {
+        title: form.title.trim(),
+        category: form.category,
+        rentPerDay: Number(form.rentPerDay),
+        location: form.location.trim(),
+        condition: form.condition,
+        availability: form.availability,
+        description: form.description.trim(),
+        tags: parseTags(form.tags),
+        images,
+      }
+
       if (isEdit) {
         await api.updateProduct(id, payload)
         toast.success('Listing updated', 'Your changes are now saved.')
@@ -341,6 +423,71 @@ export default function ProductFormPage() {
                     maxLength={120}
                     required
                   />
+
+                  <div>
+                    <label htmlFor="product-image" className="mb-1.5 block text-sm font-medium text-navy-900">
+                      Product image (optional)
+                    </label>
+                    <div className="flex flex-col gap-4 sm:flex-row">
+                      <div className="relative h-28 w-36 flex-shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50">
+                        {previewImage ? (
+                          <img
+                            src={previewImage}
+                            alt="Selected product preview"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="flex h-full w-full items-center justify-center"
+                            style={{ background: getCategoryGradient(previewCategory) }}
+                          >
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/25 text-white backdrop-blur-sm">
+                              <ProductCategoryIcon category={previewCategory} className="h-6 w-6" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <input
+                          ref={imageInputRef}
+                          id="product-image"
+                          name="image"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                          onChange={handleImageChange}
+                          disabled={isSaving}
+                          className="block w-full cursor-pointer rounded-xl border border-neutral-200 bg-white text-sm text-neutral-500 file:mr-3 file:border-0 file:bg-primary-50 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-primary-700 hover:file:bg-primary-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        />
+                        <p className="mt-1.5 text-xs text-neutral-400">
+                          JPEG, PNG, WebP, or GIF. Maximum 5 MB.
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                          {previewImage && (
+                            <button
+                              type="button"
+                              onClick={handleRemoveImage}
+                              disabled={isSaving}
+                              className="rounded text-sm font-semibold text-error-600 hover:text-error-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Remove image
+                            </button>
+                          )}
+                          {imageFile && !isUploading && (
+                            <span className="truncate text-xs text-neutral-400">
+                              {imageFile.name}
+                            </span>
+                          )}
+                          {isUploading && (
+                            <span className="text-sm text-primary-600" role="status">
+                              Uploading image...
+                            </span>
+                          )}
+                        </div>
+                        <FieldError>{imageError}</FieldError>
+                      </div>
+                    </div>
+                  </div>
 
                   <div>
                     <label htmlFor="product-category" className="mb-1.5 block text-sm font-medium text-navy-900">
@@ -504,14 +651,22 @@ export default function ProductFormPage() {
             <aside className="space-y-5 lg:sticky lg:top-40">
               <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-card">
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <div
-                    className="flex h-full w-full items-center justify-center"
-                    style={{ background: getCategoryGradient(previewCategory) }}
-                  >
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 text-white backdrop-blur-sm">
-                      <ProductCategoryIcon category={previewCategory} className="h-10 w-10" />
+                  {previewImage ? (
+                    <img
+                      src={previewImage}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="flex h-full w-full items-center justify-center"
+                      style={{ background: getCategoryGradient(previewCategory) }}
+                    >
+                      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 text-white backdrop-blur-sm">
+                        <ProductCategoryIcon category={previewCategory} className="h-10 w-10" />
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div className="absolute left-3 top-3">
                     <Badge variant="primary" size="sm">{previewCategory}</Badge>
                   </div>
