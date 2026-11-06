@@ -4,6 +4,8 @@ import { connectDB } from '../src/config/db.js'
 import { User } from '../src/models/User.js'
 import { Category } from '../src/models/Category.js'
 import { Product } from '../src/models/Product.js'
+import { BorrowRequest } from '../src/models/BorrowRequest.js'
+import { reconcileBorrowAvailability } from '../src/services/borrowRequestService.js'
 import { hashPassword } from '../src/utils/password.js'
 
 const DEMO_OWNER_EMAIL = 'demo.owner@borrowbox.local'
@@ -211,7 +213,7 @@ async function seed() {
   await connectDB()
 
   try {
-    await Promise.all([Category.init(), Product.init()])
+    await Promise.all([Category.init(), Product.init(), BorrowRequest.init()])
 
     const owner = await ensureDemoOwner()
     const categoriesBySlug = new Map()
@@ -254,6 +256,13 @@ async function seed() {
           setDefaultsOnInsert: true,
           runValidators: true,
         }
+      )
+    }
+
+    const reconciliation = await reconcileBorrowAvailability()
+    if (reconciliation.productsUpdated > 0) {
+      console.log(
+        `Borrow availability reconciled for ${reconciliation.productsUpdated} product(s).`
       )
     }
 

@@ -10,6 +10,7 @@ import CategoriesPage from './pages/CategoriesPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import MyProductsPage from './pages/MyProductsPage'
+import RequestsPage from './pages/RequestsPage'
 import AboutPage from './pages/AboutPage'
 import NotFoundPage from './pages/NotFoundPage'
 
@@ -28,6 +29,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/my-products" element={<ProtectedRoute><MyProductsPage /></ProtectedRoute>} />
+          <Route path="/requests" element={<ProtectedRoute><RequestsPage /></ProtectedRoute>} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

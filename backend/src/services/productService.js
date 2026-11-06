@@ -1,6 +1,8 @@
 import { Product } from '../models/Product.js'
 import { Category } from '../models/Category.js'
+import { BorrowRequest } from '../models/BorrowRequest.js'
 import { ApiError } from '../utils/apiError.js'
+import { withTransaction } from '../utils/transactions.js'
 import { getNearbyAreaNames } from '../config/areaNeighbors.js'
 
 // API IDs are 24-character hex strings. Anything else is treated as a slug.
@@ -283,12 +285,15 @@ async function ensureActiveCategory(categoryId) {
   }
 }
 
-async function findOwnedProduct(id, ownerId) {
+async function findOwnedProduct(id, ownerId, session) {
   if (!OBJECT_ID_REGEX.test(id)) {
     throw new ApiError(400, 'Invalid product id')
   }
 
-  const product = await Product.findById(id)
+  const query = Product.findById(id)
+  if (session) query.session(session)
+  const product = await query
+
   if (!product) {
     throw new ApiError(404, 'Product not found')
   }
@@ -332,12 +337,40 @@ export async function createProduct(ownerId, input) {
 export async function updateOwnedProduct(id, ownerId, input) {
   await ensureActiveCategory(input.category)
 
-  const product = await findOwnedProduct(id, ownerId)
-  Object.assign(product, input)
-  await product.save()
-  await product.populate(POPULATE)
+  const existingProduct = await findOwnedProduct(id, ownerId)
+  const reopeningProduct =
+    input.availability === 'available' &&
+    existingProduct.availability !== 'available'
 
-  return { product: toPublicProduct(product) }
+  if (reopeningProduct) {
+    const product = await withTransaction(async (session) => {
+      const ownedProduct = await findOwnedProduct(id, ownerId, session)
+      const acceptedRequest = await BorrowRequest.exists({
+        product: ownedProduct._id,
+        status: 'Accepted',
+      }).session(session)
+
+      if (acceptedRequest) {
+        throw new ApiError(
+          409,
+          'This product has an accepted borrowing request and cannot be marked available'
+        )
+      }
+
+      Object.assign(ownedProduct, input)
+      await ownedProduct.save({ session })
+      return ownedProduct
+    })
+
+    await product.populate(POPULATE)
+    return { product: toPublicProduct(product) }
+  }
+
+  Object.assign(existingProduct, input)
+  await existingProduct.save()
+  await existingProduct.populate(POPULATE)
+
+  return { product: toPublicProduct(existingProduct) }
 }
 
 export async function updateOwnedProductPublication(id, ownerId, isPublished) {

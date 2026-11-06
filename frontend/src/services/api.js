@@ -69,4 +69,22 @@ export const api = {
       method: 'PATCH',
       body: { isPublished },
     }),
+  createBorrowRequest: (payload) =>
+    request('/borrow-requests', { method: 'POST', body: payload }),
+  getMyBorrowRequests: (params = {}) =>
+    request(`/borrow-requests/my${toQueryString(params)}`),
+  getIncomingBorrowRequests: (params = {}) =>
+    request(`/borrow-requests/incoming${toQueryString(params)}`),
+  acceptBorrowRequest: (id) =>
+    request(`/borrow-requests/${encodeURIComponent(id)}/accept`, {
+      method: 'PATCH',
+    }),
+  rejectBorrowRequest: (id) =>
+    request(`/borrow-requests/${encodeURIComponent(id)}/reject`, {
+      method: 'PATCH',
+    }),
+  cancelBorrowRequest: (id) =>
+    request(`/borrow-requests/${encodeURIComponent(id)}/cancel`, {
+      method: 'PATCH',
+    }),
 }

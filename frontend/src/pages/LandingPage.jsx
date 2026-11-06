@@ -31,8 +31,8 @@ const steps = [
   },
   {
     step: 'Step 3',
-    title: 'Borrow requests are coming next',
-    description: 'Sending requests, owner approval, and returns are not available yet.',
+    title: 'Request to borrow',
+    description: 'Pick your dates, send a request, and the owner accepts or rejects it.',
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -65,7 +65,7 @@ const platformItems = [
   },
   {
     title: 'Borrow requests',
-    description: 'Requesting, accepting, and returning items are not available yet.',
+    description: 'Send date-based requests and get a clear owner decision.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     ),
@@ -333,7 +333,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="How it works"
               title="What you can do today"
-              description="Browse listings and manage your items now. Borrow requests come next."
+              description="Browse listings, manage your items, and send borrow requests now."
             />
           </div>
           <ol className="grid grid-cols-1 gap-5 md:grid-cols-3" role="list">
@@ -417,8 +417,8 @@ export default function LandingPage() {
               Ready to browse or list locally?
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base sm:text-lg text-white/80">
-              Join BorrowBox free. Browse local items or list something you own today.
-              Borrow requests are coming soon.
+              Join BorrowBox free. Browse local items, send borrow requests, or list
+              something you own today.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link to="/browse" className="w-full sm:w-auto">

@@ -14,6 +14,7 @@ const navLinks = [
   { path: '/browse', label: 'Browse Items', icon: 'search' },
   { path: '/categories', label: 'Categories', icon: 'categories' },
   { path: '/my-products', label: 'My Products', icon: 'box' },
+  { path: '/requests', label: 'Requests', icon: 'requests' },
   { path: '/about', label: 'About Us', icon: 'info' },
 ]
 
@@ -23,6 +24,7 @@ const icons = {
   categories: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>,
   info: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   box: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>,
+  requests: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8M8 11h8M8 15h5m-9 5V6a2 2 0 012-2h11a2 2 0 012 2v12l-4-3-4 3-4-3-3 3z" /></svg>,
 }
 
 export function MobileNavPanel({ isOpen, onClose }) {

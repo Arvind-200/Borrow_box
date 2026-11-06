@@ -30,3 +30,16 @@ export const loginLimiter = rateLimit({
     sendRateLimitResponse(res, 'Too many login attempts. Please try again later.')
   },
 })
+
+export const borrowRequestCreateLimiter = rateLimit({
+  ...RATE_LIMIT_OPTIONS,
+  windowMs: 60 * 60 * 1000,
+  limit: 20,
+  keyGenerator: (req) => String(req.user._id),
+  handler: (req, res) => {
+    sendRateLimitResponse(
+      res,
+      'Too many borrow request attempts. Please try again later.'
+    )
+  },
+})

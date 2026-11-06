@@ -7,6 +7,7 @@ import healthRoutes from './routes/health.js'
 import authRoutes from './routes/auth.js'
 import productRoutes from './routes/products.js'
 import categoryRoutes from './routes/categories.js'
+import borrowRequestRoutes from './routes/borrowRequests.js'
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use('/api', healthRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/categories', categoryRoutes)
+app.use('/api/borrow-requests', borrowRequestRoutes)
 
 app.use((req, res) => {
   res.status(404).json({

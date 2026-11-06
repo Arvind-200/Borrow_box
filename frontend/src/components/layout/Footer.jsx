@@ -89,7 +89,7 @@ export function Footer() {
             ))}
           </div>
           <p className="mt-4 text-sm text-white/50">
-            Borrow requests, reviews, reporting, and admin tools are coming in future phases.
+            Borrow requests are available now. Reviews, reporting, and admin tools are coming in future phases.
           </p>
         </div>
 

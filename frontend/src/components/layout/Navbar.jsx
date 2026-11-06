@@ -14,6 +14,7 @@ const navLinks = [
   { path: '/browse', label: 'Browse Items' },
   { path: '/categories', label: 'Categories' },
   { path: '/my-products', label: 'My Products' },
+  { path: '/requests', label: 'Requests' },
   { path: '/about', label: 'About Us' },
 ]
 

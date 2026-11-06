@@ -6,6 +6,7 @@ import { useToast } from '../components/ui/Toast.jsx'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
+import { RequestBorrowModal } from '../components/borrow/RequestBorrowModal'
 import { ProductCategoryIcon, getCategoryGradient } from '../components/product/productVisuals'
 
 const conditionLabels = {
@@ -19,19 +20,23 @@ export default function ProductDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, isAuthLoading } = useAuth()
+  const { user, isAuthenticated, isAuthLoading } = useAuth()
   const toast = useToast()
   const [product, setProduct] = useState(null)
   const [activeImage, setActiveImage] = useState('')
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [isRequestOpen, setIsRequestOpen] = useState(false)
+  const [requestSent, setRequestSent] = useState(false)
 
   useEffect(() => {
     let active = true
     setStatus('loading')
     setError(null)
     setProduct(null)
+    setIsRequestOpen(false)
+    setRequestSent(false)
 
     api.getProduct(id)
       .then((data) => {
@@ -109,17 +114,53 @@ export default function ProductDetailPage() {
       })
     : null
 
+  const isOwner =
+    Boolean(user?.id) &&
+    Boolean(product.owner?.id) &&
+    String(user.id) === String(product.owner.id)
+
+  const returnPath = `${location.pathname}${location.search}`
+
   const handleBorrowRequest = () => {
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: location.pathname } })
+    if (isAuthLoading) return
+
+    if (isOwner) {
+      navigate(`/products/${product.id}/edit`)
       return
     }
 
-    toast.info(
-      'Borrow requests are coming soon',
-      'The request flow will be enabled in the next phase. You can keep browsing listings for now.'
+    if (!isAvailable) return
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: returnPath } })
+      return
+    }
+
+    setIsRequestOpen(true)
+  }
+
+  const handleRequestSuccess = () => {
+    setIsRequestOpen(false)
+    setRequestSent(true)
+    toast.success(
+      'Borrow request sent',
+      'The owner can now accept or reject your request.'
     )
   }
+
+  let actionLabel = 'Request to Borrow'
+  if (isAuthLoading) actionLabel = 'Checking availability...'
+  else if (isOwner) actionLabel = 'Manage your listing'
+  else if (!isAvailable) actionLabel = 'Currently unavailable'
+  else if (!isAuthenticated) actionLabel = 'Log in to request'
+
+  const helperText = isOwner
+    ? 'You own this listing. Update details or manage the item from your listings.'
+    : !isAvailable
+      ? 'This item is already reserved or paused by its owner. Check back later.'
+      : isAuthenticated
+        ? 'Choose your dates and send a request. The owner decides whether to accept.'
+        : 'Sign in to send a borrow request for this item.'
 
   return (
     <div className="bg-[#F8FAFC]">
@@ -248,21 +289,26 @@ export default function ProductDetailPage() {
                 size="lg"
                 className="mt-6 w-full"
                 onClick={handleBorrowRequest}
-                disabled={!isAvailable}
+                disabled={isAuthLoading || (!isAvailable && !isOwner)}
                 loading={isAuthLoading}
               >
-                {!isAvailable
-                  ? 'Currently unavailable'
-                  : isAuthenticated
-                    ? 'Borrow requests coming soon'
-                    : 'Log in to continue'}
+                {actionLabel}
               </Button>
 
               <p className="mt-3 text-center text-sm text-neutral-500">
-                {isAuthenticated
-                  ? 'Borrow requests are not available yet.'
-                  : 'Sign in to manage your listings. Borrow requests are coming soon.'}
+                {helperText}
               </p>
+
+              {requestSent && (
+                <p className="mt-2 text-center text-sm">
+                  <Link
+                    to="/requests"
+                    className="font-semibold text-primary-600 hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  >
+                    View your requests
+                  </Link>
+                </p>
+              )}
             </div>
 
             <div className="mt-6">
@@ -305,6 +351,13 @@ export default function ProductDetailPage() {
           </section>
         </div>
       </div>
+
+      <RequestBorrowModal
+        isOpen={isRequestOpen}
+        onClose={() => setIsRequestOpen(false)}
+        product={product}
+        onSuccess={handleRequestSuccess}
+      />
     </div>
   )
 }

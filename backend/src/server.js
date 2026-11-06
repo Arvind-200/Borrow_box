@@ -1,11 +1,29 @@
 import app from './app.js'
 import { config, validateConfig } from './config/env.js'
 import { connectDB } from './config/db.js'
+import { initializeBorrowRequestWorkflow } from './services/borrowRequestService.js'
 
 async function startServer() {
   try {
     validateConfig()
     await connectDB()
+
+    const borrowWorkflow = await initializeBorrowRequestWorkflow()
+    console.log(
+      `Borrow request transactions: ${
+        borrowWorkflow.transactionsSupported ? 'enabled' : 'unavailable'
+      }`
+    )
+    if (!borrowWorkflow.transactionsSupported) {
+      console.warn(
+        'Accept and cancel endpoints will return 503 until the MongoDB deployment supports transactions.'
+      )
+    }
+    if (borrowWorkflow.productsUpdated > 0) {
+      console.log(
+        `Borrow availability reconciled for ${borrowWorkflow.productsUpdated} product(s).`
+      )
+    }
 
     const server = app.listen(config.port, () => {
       console.log(`Server running on port ${config.port}`)
