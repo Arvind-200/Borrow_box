@@ -1,9 +1,13 @@
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import { Product } from '../models/Product.js'
 import { Category } from '../models/Category.js'
 import { BorrowRequest } from '../models/BorrowRequest.js'
 import { ApiError } from '../utils/apiError.js'
 import { withTransaction } from '../utils/transactions.js'
 import { getNearbyAreaNames } from '../config/areaNeighbors.js'
+import { productsUploadsDir } from '../middleware/upload.js'
+import { areNewListingsAllowed } from './platformSettingService.js'
 
 // API IDs are 24-character hex strings. Anything else is treated as a slug.
 const OBJECT_ID_REGEX = /^[a-f0-9]{24}$/i
@@ -17,7 +21,7 @@ const SORT_SPECS = {
 
 const POPULATE = [
   { path: 'category', select: 'name slug' },
-  { path: 'owner', select: 'name' },
+  { path: 'owner', select: 'name ratingAverage reviewCount' },
 ]
 
 const PUBLIC_FILTER = {
@@ -71,6 +75,10 @@ function toPublicProduct(product) {
       ? {
           id: String(populatedOwner._id),
           name: populatedOwner.name,
+          rating: {
+            average: populatedOwner.ratingAverage ?? 0,
+            count: populatedOwner.reviewCount ?? 0,
+          },
         }
       : null,
     createdAt: product.createdAt,
@@ -323,6 +331,13 @@ export async function getOwnedProduct(id, ownerId) {
 }
 
 export async function createProduct(ownerId, input) {
+  if (!(await areNewListingsAllowed())) {
+    throw new ApiError(
+      403,
+      'New listings are currently disabled by an administrator'
+    )
+  }
+
   await ensureActiveCategory(input.category)
 
   const product = await Product.create({
@@ -380,4 +395,63 @@ export async function updateOwnedProductPublication(id, ownerId, isPublished) {
   await product.populate(POPULATE)
 
   return { product: toPublicProduct(product) }
+}
+
+const LOCAL_PRODUCT_IMAGE_PREFIX = '/uploads/products/'
+
+function toLocalImageFile(image) {
+  if (
+    typeof image !== 'string' ||
+    !image.startsWith(LOCAL_PRODUCT_IMAGE_PREFIX)
+  ) {
+    return null
+  }
+
+  const filename = image.slice(LOCAL_PRODUCT_IMAGE_PREFIX.length)
+  if (!filename || filename !== path.basename(filename)) {
+    return null
+  }
+
+  return path.join(productsUploadsDir, filename)
+}
+
+async function removeLocalImageFiles(images) {
+  const files = (Array.isArray(images) ? images : [])
+    .map(toLocalImageFile)
+    .filter(Boolean)
+
+  await Promise.all(
+    files.map((file) => fs.rm(file, { force: true }).catch(() => {}))
+  )
+}
+
+export async function deleteOwnedProduct(id, ownerId) {
+  const product = await findOwnedProduct(id, ownerId)
+
+  const [acceptedRequest, pendingRequest] = await Promise.all([
+    BorrowRequest.exists({ product: product._id, status: 'Accepted' }),
+    BorrowRequest.exists({ product: product._id, status: 'Pending' }),
+  ])
+
+  if (acceptedRequest) {
+    throw new ApiError(
+      409,
+      'This item is currently borrowed and cannot be deleted until the loan is cancelled'
+    )
+  }
+
+  if (pendingRequest) {
+    throw new ApiError(
+      409,
+      'This item has pending borrow requests. Reject them before deleting the listing'
+    )
+  }
+
+  const images = Array.isArray(product.images) ? product.images : []
+  const productId = String(product._id)
+
+  await product.deleteOne()
+  await removeLocalImageFiles(images)
+
+  return { id: productId }
 }

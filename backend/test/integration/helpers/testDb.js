@@ -4,6 +4,10 @@ import { User } from '../../../src/models/User.js'
 import { Category } from '../../../src/models/Category.js'
 import { Product } from '../../../src/models/Product.js'
 import { BorrowRequest } from '../../../src/models/BorrowRequest.js'
+import { Review } from '../../../src/models/Review.js'
+import { Report } from '../../../src/models/Report.js'
+import { AdminActivityLog } from '../../../src/models/AdminActivityLog.js'
+import { PlatformSetting } from '../../../src/models/PlatformSetting.js'
 
 const TEST_DB_PREFIX = 'borrowbox_test_'
 const RESERVED_DATABASE_NAMES = new Set(['test', 'borrowbox', 'admin', 'local', 'config'])
@@ -43,6 +47,10 @@ export async function connectTestDb() {
     Category.init(),
     Product.init(),
     BorrowRequest.init(),
+    Review.init(),
+    Report.init(),
+    AdminActivityLog.init(),
+    PlatformSetting.init(),
   ])
 
   connected = true
@@ -53,6 +61,10 @@ export async function clearTestDb() {
   if (!connected) return
 
   await Promise.all([
+    PlatformSetting.deleteMany({}),
+    AdminActivityLog.deleteMany({}),
+    Report.deleteMany({}),
+    Review.deleteMany({}),
     BorrowRequest.deleteMany({}),
     Product.deleteMany({}),
     Category.deleteMany({}),

@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BorrowBox Admin - Dashboard Mockup</title>
+
+  <link rel="stylesheet" href="../../admin/assets/libs/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../admin/assets/libs/bootstrap-icons/bootstrap-icons.css">
+  <link rel="stylesheet" href="../../admin/assets/css/main.css">
+
+  <style>
+    :root {
+      --bs-body-bg: #F8FAFC;
+      --bs-body-font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+      --brand-forest-dark: #0F1626;
+      --brand-forest-medium: #172033;
+      --brand-forest-light: #1E2A44;
+      --brand-lime: #34D399;
+      --brand-lime-hover: #6EE7B7;
+      --brand-lime-translucent: rgba(52, 211, 153, 0.18);
+      --text-main: #172033;
+      --text-muted-green: #64748B;
+      --text-sidebar-muted: #94A3B8;
+      --card-background: #FFFFFF;
+      --border-light: #E2E8F0;
+      --border-dark-green: rgba(255, 255, 255, 0.08);
+      --sys-green: #10B981;
+      --sys-green-bg: #D1FAE5;
+      --sys-red: #EF4444;
+      --sys-red-bg: #FEE2E2;
+      --sys-orange: #F97316;
+      --sys-orange-bg: #FFEDD5;
+      --radius-xxl: 22px;
+      --radius-xl: 16px;
+      --radius-lg: 12px;
+      --radius-md: 9px;
+      --shadow-sm: 0 2px 8px rgba(15, 22, 38, 0.03);
+      --shadow-md: 0 10px 30px rgba(15, 22, 38, 0.05);
+      --shadow-lg: 0 20px 50px rgba(15, 22, 38, 0.09);
+    }
+
+    body { font-family: var(--bs-body-font-family); }
+
+    .sidebar-brand { margin-bottom: 1.6rem; gap: 0.6rem; }
+
+    .bb-word {
+      font-size: 1.28rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .bb-word .bb-accent { color: var(--brand-lime); }
+
+    .bb-admin-tag {
+      display: inline-block;
+      margin-left: 0.35rem;
+      padding: 0.16rem 0.42rem;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: 6px;
+      font-size: 0.52rem;
+      letter-spacing: 0.14em;
+      color: var(--brand-lime);
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    .sidebar-menu-section { margin-bottom: 1.35rem; }
+    .sidebar-menu-item { margin-bottom: 0.2rem; }
+    .sidebar-menu-link { padding: 0.62rem 0.85rem; font-size: 0.9rem; }
+    .sidebar-menu-title { margin-bottom: 0.55rem; }
+
+    .sidebar-menu-link.active {
+      background-color: rgba(52, 211, 153, 0.10);
+    }
+
+    .sidebar-menu-link.active::before { background-color: var(--brand-lime); }
+    .sidebar-menu-link.active i { color: var(--brand-lime); }
+    .sidebar-menu-badge { background-color: var(--brand-lime); color: #0F1626; }
+
+    .sidebar-profile {
+      background-color: rgba(52, 211, 153, 0.06);
+      border-color: rgba(52, 211, 153, 0.16);
+    }
+
+    .sidebar-back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.85rem;
+      margin-bottom: 0.85rem;
+      border-radius: var(--radius-md);
+      color: var(--text-sidebar-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .sidebar-back-link:hover {
+      color: #FFFFFF;
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-custom-secondary { color: #0F1626; }
+    .btn-custom-secondary:hover { color: #0F1626; }
+
+    .table-custom tbody tr:hover { background-color: rgba(16, 185, 129, 0.04); }
+
+    .promo-banner-card { background-color: #ECFDF5; }
+    .promo-banner-bg-shape { opacity: 0.5; }
+    .promo-title { color: #0F1626; }
+    .promo-desc { color: #172033; }
+
+    .chart-legends-container {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 0.55rem 1rem;
+    }
+
+    .alert-green-card { min-height: 178px; }
+    .alert-green-bg-shape { opacity: 0.6; }
+    .card-stat { min-height: 178px; }
+
+    .bb-kpi-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #ECFDF5;
+      color: #059669;
+      font-size: 1rem;
+    }
+
+    .bb-kpi-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.15rem;
+    }
+
+    .stat-label { margin-bottom: 0.35rem; }
+
+    .bb-muted-small {
+      font-size: 0.72rem;
+      color: var(--text-muted-green);
+      font-weight: 500;
+      margin-top: 0.35rem;
+    }
+
+    .transaction-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      font-size: 1rem;
+    }
+
+    .transaction-list { gap: 0.35rem; }
+    .transaction-item { padding: 0.7rem 0.5rem; }
+    .transaction-name { font-size: 0.86rem; }
+    .transaction-date { font-size: 0.72rem; }
+
+    .bb-queue-action {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--brand-forest-medium);
+      white-space: nowrap;
+    }
+
+    .navbar-search-input:focus {
+      border-color: var(--brand-lime);
+      box-shadow: 0 0 0 3px var(--brand-lime-translucent);
+    }
+
+    .form-control-custom:focus,
+    .form-select-custom:focus,
+    .table-search-input:focus {
+      border-color: var(--brand-lime);
+      box-shadow: 0 0 0 3px var(--brand-lime-translucent);
+    }
+
+    .btn-quick-action:hover {
+      background-color: var(--brand-forest-dark);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px var(--brand-lime-translucent);
+    }
+
+    .footer-logo i { color: var(--brand-lime); }
+
+    .bb-date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar-wrapper" id="sidebar">
+    <a href="#" class="sidebar-brand">
+      <svg viewBox="0 0 32 32" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true">
+        <path d="M10 16 A6 6 0 0 1 22 16" stroke="#34D399" stroke-width="2.5" stroke-linecap="round" />
+        <path d="M22 16 A6 6 0 0 0 10 16" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" />
+        <path d="M22 16 L20.5 15 L21.5 16 L20.5 17" fill="#34D399" />
+        <path d="M10 16 L11.5 15 L10.5 16 L11.5 17" fill="#10B981" />
+        <polygon points="16,11 20,14 16,17 12,14" fill="#FFFFFF" />
+        <polygon points="12,14 12,20 16,17 16,23" fill="#10B981" />
+        <polygon points="20,14 20,20 16,23 16,17" fill="#34D399" />
+      </svg>
+      <span class="bb-word">Borrow<span class="bb-accent">Box</span><span class="bb-admin-tag">ADMIN</span></span>
+    </a>
+
+    <div class="flex-grow-1 overflow-y-auto">
+      <div class="sidebar-menu-section">
+        <div class="sidebar-menu-title">Overview</div>
+        <ul class="sidebar-menu-list">
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link active">
+              <i class="bi bi-grid-fill"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-menu-section">
+        <div class="sidebar-menu-title">Marketplace</div>
+        <ul class="sidebar-menu-list">
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-people"></i>
+              <span>Users</span>
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-box-seam"></i>
+              <span>Listings</span>
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-arrow-left-right"></i>
+              <span>Borrow Requests</span>
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-tags"></i>
+              <span>Categories</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-menu-section">
+        <div class="sidebar-menu-title">Trust &amp; Safety</div>
+        <ul class="sidebar-menu-list">
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-flag"></i>
+              <span>Reports</span>
+              <span class="sidebar-menu-badge">6</span>
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-star"></i>
+              <span>Reviews</span>
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-clock-history"></i>
+              <span>Activity Logs</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-menu-section">
+        <div class="sidebar-menu-title">System</div>
+        <ul class="sidebar-menu-list">
+          <li class="sidebar-menu-item">
+            <a href="#" class="sidebar-menu-link">
+              <i class="bi bi-gear"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <a href="#" class="sidebar-back-link">
+      <i class="bi bi-box-arrow-up-right"></i>
+      <span>Back to marketplace</span>
+    </a>
+
+    <div class="sidebar-profile">
+      <img src="../../admin/assets/images/avatar.png" alt="Admin avatar" class="sidebar-profile-img">
+      <div class="sidebar-profile-info">
+        <div class="sidebar-profile-name">Arvind Kumar</div>
+        <div class="sidebar-profile-email">admin@borrowbox.app</div>
+      </div>
+      <i class="bi bi-three-dots-vertical" style="color:#94A3B8;"></i>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main-wrapper">
+
+    <header class="navbar-custom">
+      <div class="navbar-left">
+        <button class="btn-desktop-toggle d-none d-xl-flex align-items-center justify-content-center me-3"
+          id="desktop-sidebar-toggle" aria-label="Minimize Sidebar">
+          <i class="bi bi-chevron-bar-left"></i>
+        </button>
+        <button class="sidebar-toggle-btn me-2" aria-label="Toggle Navigation">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="dropdown ms-2">
+          <button class="btn-quick-action dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <i class="bi bi-plus-lg"></i>
+            <span>Create</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-quick-action">
+            <li class="dropdown-header">Quick Actions</li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-tag"></i> New Category</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-person-exclamation"></i> Send Warning</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-flag"></i> Review Reports</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Platform Settings</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="navbar-search-wrapper">
+        <input type="text" class="navbar-search-input" placeholder="Search users, listings, reports...">
+        <button class="navbar-search-btn" aria-label="Search">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+
+      <div class="navbar-actions">
+        <button class="navbar-action-btn me-1" aria-label="Toggle Fullscreen">
+          <i class="bi bi-arrows-fullscreen"></i>
+        </button>
+
+        <div class="dropdown">
+          <button class="navbar-action-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <i class="bi bi-bell"></i>
+            <span class="navbar-action-badge"></span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end dropdown-menu-notification p-0">
+            <div class="notification-header">
+              <h6 class="notification-title">Notifications</h6>
+              <button class="btn-clear-all" type="button">Mark all read</button>
+            </div>
+            <div class="notification-list">
+              <a href="#" class="notification-item">
+                <div class="notification-icon bg-danger text-white">
+                  <i class="bi bi-flag-fill"></i>
+                </div>
+                <div class="notification-content">
+                  <p class="notification-text">New report: <strong>Cordless Drill</strong></p>
+                  <span class="notification-time">14 mins ago</span>
+                </div>
+                <span class="notification-unread-dot"></span>
+              </a>
+              <a href="#" class="notification-item">
+                <div class="notification-icon bg-warning text-dark">
+                  <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <div class="notification-content">
+                  <p class="notification-text">New user registered: <strong>Neha S.</strong></p>
+                  <span class="notification-time">42 mins ago</span>
+                </div>
+                <span class="notification-unread-dot"></span>
+              </a>
+              <a href="#" class="notification-item">
+                <div class="notification-icon bg-success text-white">
+                  <i class="bi bi-check2-circle"></i>
+                </div>
+                <div class="notification-content">
+                  <p class="notification-text">Borrow request accepted: <strong>#BR-2041</strong></p>
+                  <span class="notification-time">1 hour ago</span>
+                </div>
+              </a>
+            </div>
+            <a href="#" class="notification-footer">View All Notifications</a>
+          </div>
+        </div>
+
+        <div class="dropdown ms-2">
+          <button class="navbar-profile-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <img src="../../admin/assets/images/avatar.png" alt="Profile" class="navbar-profile-img">
+            <span class="navbar-profile-name d-none d-md-inline">Admin</span>
+            <i class="bi bi-chevron-down navbar-profile-caret"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-profile">
+            <li class="dropdown-header">Signed in as Admin</li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> My Account</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right"></i> Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back, Admin. Here is what needs your attention today.</p>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn-date-picker bb-date-pill" type="button">
+          <i class="bi bi-calendar4-event"></i>
+          <span>Feb 5 - Feb 11, 2026</span>
+          <i class="bi bi-chevron-down ms-1"></i>
+        </button>
+        <button class="btn-custom btn-custom-primary" type="button">
+          <i class="bi bi-flag"></i> Open reports
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- KPI row -->
+      <div class="col-12">
+        <div class="row g-4">
+          <div class="col-md-6 col-xl-3">
+            <div class="card alert-green-card">
+              <div class="position-relative z-index-2">
+                <span class="alert-green-badge">Needs attention</span>
+                <div class="alert-green-date">Updated 5 minutes ago</div>
+                <div class="alert-green-text">6 reports and 5 borrow requests are waiting for review.</div>
+              </div>
+              <a href="#" class="alert-green-link z-index-2">
+                <span>Open moderation queue</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+              <svg class="alert-green-bg-shape" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(50,50)">
+                  <rect x="-6" y="-45" width="12" height="90" rx="6" ry="6" fill="#34D399" />
+                  <rect x="-6" y="-45" width="12" height="90" rx="6" ry="6" fill="#34D399" transform="rotate(60)" />
+                  <rect x="-6" y="-45" width="12" height="90" rx="6" ry="6" fill="#34D399" transform="rotate(120)" />
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3">
+            <div class="card card-stat d-flex flex-column justify-content-between">
+              <div>
+                <div class="bb-kpi-head">
+                  <span class="stat-label">Total users</span>
+                  <span class="bb-kpi-icon"><i class="bi bi-people"></i></span>
+                </div>
+                <div class="stat-value">128</div>
+                <div class="trend-badge trend-up">
+                  <i class="bi bi-arrow-up-right"></i>
+                  <span>+12 this week</span>
+                </div>
+                <div class="bb-muted-small">4 blocked &middot; 3 warned</div>
+              </div>
+              <div class="sparkline-container sparkline-card-footer">
+                <div id="users-sparkline"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3">
+            <div class="card card-stat d-flex flex-column justify-content-between">
+              <div>
+                <div class="bb-kpi-head">
+                  <span class="stat-label">Active listings</span>
+                  <span class="bb-kpi-icon"><i class="bi bi-box-seam"></i></span>
+                </div>
+                <div class="stat-value">46</div>
+                <div class="trend-badge trend-up">
+                  <i class="bi bi-arrow-up-right"></i>
+                  <span>+5 this week</span>
+                </div>
+                <div class="bb-muted-small">9 hidden or removed by admins</div>
+              </div>
+              <div class="sparkline-container sparkline-card-footer">
+                <div id="listings-sparkline"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3">
+            <div class="card card-stat d-flex flex-column justify-content-between">
+              <div>
+                <div class="bb-kpi-head">
+                  <span class="stat-label">Open reports</span>
+                  <span class="bb-kpi-icon" style="background:#FEF2F2;color:#DC2626;"><i class="bi bi-flag"></i></span>
+                </div>
+                <div class="stat-value">6</div>
+                <div class="trend-badge trend-down">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  <span>2 high priority</span>
+                </div>
+                <div class="bb-muted-small">Average resolution time: 3.2 hours</div>
+              </div>
+              <div class="sparkline-container sparkline-card-footer">
+                <div id="reports-sparkline"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main dashboard content -->
+      <div class="col-xl-9 col-lg-8">
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card mb-0">
+              <div class="card-header mb-2">
+                <h2 class="card-title">Borrow requests overview</h2>
+                <div class="d-flex gap-3 align-items-center">
+                  <div class="chart-legend-item">
+                    <span class="legend-dot bg-forest-medium"></span>
+                    <span class="chart-legend-label">Pending</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <span class="legend-dot bg-lime-accent"></span>
+                    <span class="chart-legend-label">Accepted</span>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex align-items-baseline gap-2 mb-3">
+                <span class="stat-value-amount">18 requests</span>
+                <span class="trend-badge trend-up fs-xs">+12% from last week</span>
+              </div>
+              <div id="requests-chart"></div>
+            </div>
+          </div>
+
+          <div class="col-md-7 d-flex flex-column">
+            <div class="card h-100 flex-grow-1">
+              <div class="card-header">
+                <h2 class="card-title">Moderation queue</h2>
+                <a href="#" class="bb-queue-action">View all <i class="bi bi-arrow-right"></i></a>
+              </div>
+
+              <div class="transaction-list">
+                <div class="transaction-item">
+                  <div class="transaction-icon bg-forest-light text-lime">
+                    <i class="bi bi-box-seam"></i>
+                  </div>
+                  <div class="transaction-info">
+                    <div class="transaction-name">Cordless Drill - Fake listing</div>
+                    <div class="transaction-date">Reported by Sneha P. &middot; 14 min ago</div>
+                  </div>
+                  <span class="badge-table pending">Open</span>
+                </div>
+
+                <div class="transaction-item">
+                  <div class="transaction-icon bg-forest-light text-lime">
+                    <i class="bi bi-star"></i>
+                  </div>
+                  <div class="transaction-info">
+                    <div class="transaction-name">Camping Tent review - Offensive</div>
+                    <div class="transaction-date">Reported by Rahul M. &middot; 1 hr ago</div>
+                  </div>
+                  <span class="badge-table failed">High</span>
+                </div>
+
+                <div class="transaction-item">
+                  <div class="transaction-icon bg-forest-light text-lime">
+                    <i class="bi bi-camera"></i>
+                  </div>
+                  <div class="transaction-info">
+                    <div class="transaction-name">DSLR Camera - Duplicate listing</div>
+                    <div class="transaction-date">Reported by Aisha K. &middot; 2 hrs ago</div>
+                  </div>
+                  <span class="badge-table pending">Open</span>
+                </div>
+
+                <div class="transaction-item">
+                  <div class="transaction-icon bg-forest-light text-lime">
+                    <i class="bi bi-person-exclamation"></i>
+                  </div>
+                  <div class="transaction-info">
+                    <div class="transaction-name">Blocked user appeal - Spam</div>
+                    <div class="transaction-date">Reported by system &middot; 3 hrs ago</div>
+                  </div>
+                  <span class="badge-table success">In review</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-5 d-flex flex-column">
+            <div class="card h-100 flex-grow-1">
+              <div class="card-header">
+                <h2 class="card-title">Listing mix</h2>
+                <button class="card-more-btn" type="button" aria-label="More options">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+              </div>
+
+              <div class="progress-container">
+                <div class="progress-label-row">
+                  <span class="progress-label">Tools &amp; DIY</span>
+                  <span class="progress-value">18</span>
+                </div>
+                <div class="progress" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar bg-lime-accent w-65"></div>
+                </div>
+              </div>
+
+              <div class="progress-container">
+                <div class="progress-label-row">
+                  <span class="progress-label">Electronics</span>
+                  <span class="progress-value">12</span>
+                </div>
+                <div class="progress" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar bg-forest-medium w-50"></div>
+                </div>
+              </div>
+
+              <div class="progress-container">
+                <div class="progress-label-row">
+                  <span class="progress-label">Outdoor &amp; Camping</span>
+                  <span class="progress-value">9</span>
+                </div>
+                <div class="progress" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar bg-lime-accent w-38"></div>
+                </div>
+              </div>
+
+              <div class="progress-container">
+                <div class="progress-label-row">
+                  <span class="progress-label">Home &amp; Garden</span>
+                  <span class="progress-value">7</span>
+                </div>
+                <div class="progress" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar bg-brand-orange w-38"></div>
+                </div>
+              </div>
+
+              <div class="progress-container mb-0">
+                <div class="progress-label-row">
+                  <span class="progress-label">Cameras</span>
+                  <span class="progress-value">5</span>
+                </div>
+                <div class="progress" role="progressbar" aria-valuenow="22" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar bg-lime-accent opacity-50 w-25"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div class="col-xl-3 col-lg-4">
+        <div class="right-panel-wrapper d-flex flex-column gap-4 h-100">
+          <div class="card flex-grow-1 d-flex flex-column justify-content-between mb-0">
+            <div class="card-header mb-1">
+              <h2 class="card-title">Listing status</h2>
+              <span class="bb-muted-small">56 total</span>
+            </div>
+
+            <div id="status-chart"></div>
+
+            <div class="chart-legends-container">
+              <div class="chart-legend-item">
+                <span class="legend-dot" style="background:#10B981;"></span>
+                <span class="text-muted-green">Active 46</span>
+              </div>
+              <div class="chart-legend-item">
+                <span class="legend-dot" style="background:#172033;"></span>
+                <span class="text-muted-green">Hidden 5</span>
+              </div>
+              <div class="chart-legend-item">
+                <span class="legend-dot" style="background:#F97316;"></span>
+                <span class="text-muted-green">Removed 3</span>
+              </div>
+              <div class="chart-legend-item">
+                <span class="legend-dot" style="background:#EF4444;"></span>
+                <span class="text-muted-green">Review 2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="promo-banner-card">
+            <svg class="promo-banner-bg-shape" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g transform="translate(50,50)">
+                <rect x="-6" y="-45" width="12" height="90" rx="6" ry="6" fill="#34D399" />
+                <rect x="-6" y="-45" width="12" height="90" rx="6" ry="6" fill="#34D399" transform="rotate(60)" />
+                <rect x="-6" y="-45" width="12" height="90" rx="6" ry="6" fill="#34D399" transform="rotate(120)" />
+              </g>
+            </svg>
+
+            <h3 class="promo-title">Keep BorrowBox safe for everyone.</h3>
+            <p class="promo-desc">Review flagged listings, reports and reviews before they reach the community.</p>
+            <button class="btn-promo" type="button">Open review queue</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="footer-custom">
+      <div class="footer-left">
+        <span class="footer-logo">
+          <i class="bi bi-asterisk"></i> BorrowBox Admin
+        </span>
+        <span class="footer-separator">|</span>
+        <span class="footer-copy">&copy; 2026 BorrowBox. Built for a safer peer-to-peer marketplace.</span>
+      </div>
+      <div class="footer-right">
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link">Overview</a></li>
+          <li><a href="#" class="footer-link">Reports</a></li>
+          <li><a href="#" class="footer-link">Help &amp; Documentation</a></li>
+          <li><a href="#" class="footer-link">Status <span class="status-dot"></span></a></li>
+        </ul>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="../../admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../../admin/assets/libs/apexcharts/apexcharts.min.js"></script>
+
+  <script>
+    const chartBase = {
+      fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+      toolbar: { show: false },
+      animations: { enabled: false },
+      parentHeightOffset: 0
+    };
+
+    new ApexCharts(document.querySelector('#requests-chart'), {
+      chart: { ...chartBase, type: 'bar', height: 210 },
+      series: [
+        { name: 'Pending', data: [3, 2, 4, 3, 2, 1, 3] },
+        { name: 'Accepted', data: [2, 4, 3, 5, 4, 3, 6] }
+      ],
+      colors: ['#172033', '#10B981'],
+      plotOptions: {
+        bar: { borderRadius: 6, columnWidth: '42%', borderRadiusApplication: 'end' }
+      },
+      stroke: { show: true, width: 3, colors: ['#ffffff'] },
+      grid: { borderColor: '#EEF2F6', strokeDashArray: 4 },
+      xaxis: {
+        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+        labels: { style: { colors: '#94A3B8', fontSize: '11px', fontWeight: 600 } }
+      },
+      yaxis: {
+        labels: { style: { colors: '#94A3B8', fontSize: '11px' } }
+      },
+      legend: { show: false },
+      dataLabels: { enabled: false },
+      tooltip: { theme: 'light' }
+    }).render();
+
+    new ApexCharts(document.querySelector('#status-chart'), {
+      chart: { ...chartBase, type: 'donut', height: 235 },
+      series: [46, 5, 3, 2],
+      labels: ['Active', 'Hidden', 'Removed', 'Under review'],
+      colors: ['#10B981', '#172033', '#F97316', '#EF4444'],
+      stroke: { width: 0 },
+      dataLabels: { enabled: false },
+      legend: { show: false },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '72%',
+            labels: {
+              show: true,
+              name: { show: true, fontSize: '11px', fontWeight: 600, color: '#64748B' },
+              value: { show: true, fontSize: '24px', fontWeight: 800, color: '#172033' },
+              total: {
+                show: true,
+                label: 'Listings',
+                fontSize: '11px',
+                fontWeight: 600,
+                color: '#64748B',
+                formatter: () => '56'
+              }
+            }
+          }
+        }
+      }
+    }).render();
+
+    function sparkline(id, data, color) {
+      new ApexCharts(document.querySelector('#' + id), {
+        chart: {
+          ...chartBase,
+          type: 'area',
+          height: 48,
+          sparkline: { enabled: true }
+        },
+        series: [{ data }],
+        colors: [color],
+        stroke: { curve: 'smooth', width: 2 },
+        fill: {
+          type: 'gradient',
+          gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0, stops: [0, 100] }
+        },
+        tooltip: { enabled: false }
+      }).render();
+    }
+
+    sparkline('users-sparkline', [12, 16, 14, 22, 20, 28, 32], '#10B981');
+    sparkline('listings-sparkline', [8, 10, 9, 14, 12, 16, 18], '#10B981');
+    sparkline('reports-sparkline', [3, 5, 2, 6, 4, 7, 6], '#EF4444');
+  </script>
+
+</body>
+
+</html>

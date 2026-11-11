@@ -18,6 +18,10 @@ function toPublicUser(user) {
     email: user.email,
     role: user.role,
     status: user.status,
+    rating: {
+      average: user.ratingAverage ?? 0,
+      count: user.reviewCount ?? 0,
+    },
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   }

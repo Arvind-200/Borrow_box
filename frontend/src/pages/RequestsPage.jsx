@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
 import { Pagination } from '../components/ui/Pagination'
 import { BorrowRequestCard } from '../components/borrow/BorrowRequestCard'
+import { ReviewModal } from '../components/review/ReviewModal'
 
 const PAGE_SIZE = 10
 
@@ -19,6 +20,7 @@ const STATUS_FILTERS = [
   { value: '', label: 'All' },
   { value: 'pending', label: 'Pending' },
   { value: 'accepted', label: 'Accepted' },
+  { value: 'completed', label: 'Completed' },
   { value: 'rejected', label: 'Rejected' },
   { value: 'cancelled', label: 'Cancelled' },
 ]
@@ -26,6 +28,7 @@ const STATUS_FILTERS = [
 const STATUS_LABEL = {
   pending: 'pending',
   accepted: 'accepted',
+  completed: 'completed',
   rejected: 'rejected',
   cancelled: 'cancelled',
 }
@@ -76,6 +79,8 @@ export default function RequestsPage() {
   const [error, setError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
   const [processingId, setProcessingId] = useState(null)
+  const [reviewTarget, setReviewTarget] = useState(null)
+  const [reviewedIds, setReviewedIds] = useState([])
 
   const fetchKeyRef = useRef(`${tab}|${status}`)
 
@@ -95,6 +100,7 @@ export default function RequestsPage() {
     if (nextTab === tab) return
     setRequests([])
     setPagination(null)
+    setReviewTarget(null)
     updateParams({
       tab: nextTab === 'my' ? '' : nextTab,
       page: '',
@@ -176,6 +182,27 @@ export default function RequestsPage() {
     }
   }, [tab, status, page, reloadKey, refresh, setSearchParams])
 
+  useEffect(() => {
+    if (tab !== 'my') {
+      setReviewedIds([])
+      return undefined
+    }
+
+    let active = true
+    api.getMyReviews({ limit: 50 })
+      .then((data) => {
+        if (!active) return
+        setReviewedIds(
+          (data.reviews || []).map((review) => review.borrowRequest)
+        )
+      })
+      .catch(() => {})
+
+    return () => {
+      active = false
+    }
+  }, [tab, reloadKey])
+
   const runAction = async (request, action) => {
     if (processingId) return
     setProcessingId(request.id)
@@ -185,7 +212,9 @@ export default function RequestsPage() {
         ? api.acceptBorrowRequest
         : action === 'reject'
           ? api.rejectBorrowRequest
-          : api.cancelBorrowRequest
+          : action === 'complete'
+            ? api.completeBorrowRequest
+            : api.cancelBorrowRequest
 
     try {
       await call(request.id)
@@ -194,6 +223,11 @@ export default function RequestsPage() {
         toast.success('Request accepted', 'The item is now marked unavailable.')
       } else if (action === 'reject') {
         toast.success('Request rejected', 'The item stays available for other borrowers.')
+      } else if (action === 'complete') {
+        toast.success(
+          'Borrow completed',
+          'The item is available again and the borrower can now leave a review.'
+        )
       } else {
         toast.success(
           'Request cancelled',
@@ -237,12 +271,43 @@ export default function RequestsPage() {
           ? 'Could not accept request'
           : action === 'reject'
             ? 'Could not reject request'
-            : 'Could not cancel request',
+            : action === 'complete'
+              ? 'Could not mark request as returned'
+              : 'Could not cancel request',
         err.message || 'Please try again.'
       )
     } finally {
       setProcessingId(null)
     }
+  }
+
+  const handleReviewOpen = (request) => {
+    if (processingId) return
+    setReviewTarget(request)
+  }
+
+  const handleReviewSuccess = (review) => {
+    const borrowRequestId = review?.borrowRequest || reviewTarget?.id
+    if (borrowRequestId) {
+      setReviewedIds((current) =>
+        current.includes(borrowRequestId)
+          ? current
+          : [...current, borrowRequestId]
+      )
+    }
+    setReviewTarget(null)
+    toast.success('Review submitted', 'Thanks for sharing your experience.')
+  }
+
+  const handleAlreadyReviewed = (request) => {
+    setReviewedIds((current) =>
+      current.includes(request.id) ? current : [...current, request.id]
+    )
+    setReviewTarget(null)
+    toast.info(
+      'Already reviewed',
+      'You have already reviewed this borrow request.'
+    )
   }
 
   const activeTab = TABS.find((item) => item.value === tab) || TABS[0]
@@ -412,6 +477,9 @@ export default function RequestsPage() {
                     onAccept={(item) => runAction(item, 'accept')}
                     onReject={(item) => runAction(item, 'reject')}
                     onCancel={(item) => runAction(item, 'cancel')}
+                    onComplete={(item) => runAction(item, 'complete')}
+                    onReview={handleReviewOpen}
+                    isReviewed={reviewedIds.includes(request.id)}
                     isBusy={processingId === request.id}
                   />
                 ))}
@@ -426,6 +494,14 @@ export default function RequestsPage() {
           )}
         </div>
       </div>
+
+      <ReviewModal
+        isOpen={Boolean(reviewTarget)}
+        request={reviewTarget}
+        onClose={() => setReviewTarget(null)}
+        onSuccess={handleReviewSuccess}
+        onAlreadyReviewed={handleAlreadyReviewed}
+      />
     </div>
   )
 }

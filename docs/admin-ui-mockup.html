@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BorrowBox Admin — Dashboard Mockup</title>
+<style>
+  :root {
+    --emerald: #10B981;
+    --emerald-dark: #059669;
+    --emerald-soft: #ECFDF5;
+    --navy: #172033;
+    --navy-700: #243049;
+    --canvas: #F8FAFC;
+    --line: #E2E8F0;
+    --muted: #64748B;
+    --text: #172033;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--canvas);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { display: flex; min-height: 1050px; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 248px; flex: 0 0 248px;
+    background: var(--navy); color: #CBD5E1;
+    display: flex; flex-direction: column;
+    padding: 22px 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 22px; }
+  .brand-mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--emerald), #34D399);
+    display: grid; place-items: center; color: #052e22; font-weight: 800;
+  }
+  .brand-name { color: #fff; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+  .brand-sub { font-size: 11px; color: #7C8AA5; margin-top: 1px; }
+  .nav-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #66748C; padding: 6px 10px; }
+  .nav { display: flex; flex-direction: column; gap: 3px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px; border-radius: 10px; font-size: 13.5px; color: #B9C4D6;
+  }
+  .nav-item svg { width: 17px; height: 17px; opacity: .85; }
+  .nav-item.active { background: rgba(16,185,129,.14); color: #fff; box-shadow: inset 3px 0 0 var(--emerald); }
+  .nav-item.active svg { color: var(--emerald); opacity: 1; }
+  .badge-count {
+    margin-left: auto; background: #EF4444; color: #fff;
+    font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px;
+  }
+  .sidebar-foot { margin-top: auto; padding-top: 18px; border-top: 1px solid #26324A; }
+  .site-link { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #94A3B8; padding: 8px 10px; }
+  .admin-mini { display: flex; align-items: center; gap: 10px; padding: 10px; margin-top: 6px; border-radius: 10px; background: #1E2940; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#10B981,#34D399); display: grid; place-items: center; color: #052e22; font-weight: 700; font-size: 13px; }
+  .admin-mini .name { color: #fff; font-size: 12.5px; font-weight: 600; }
+  .admin-mini .role { color: #7C8AA5; font-size: 11px; }
+
+  /* Main */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar {
+    height: 68px; background: #fff; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 20px; padding: 0 28px;
+  }
+  .topbar h1 { font-size: 18px; font-weight: 700; margin: 0; }
+  .search {
+    margin-left: 12px; flex: 1; max-width: 420px;
+    display: flex; align-items: center; gap: 9px;
+    background: var(--canvas); border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 13px; color: var(--muted); font-size: 13px;
+  }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 12.5px; }
+  .pill { background: var(--emerald-soft); color: var(--emerald-dark); border: 1px solid #A7F3D0; padding: 5px 10px; border-radius: 999px; font-weight: 600; font-size: 11.5px; }
+
+  .content { padding: 26px 28px 34px; }
+  .welcome { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+  .welcome h2 { margin: 0; font-size: 23px; letter-spacing: -.02em; }
+  .welcome p { margin: 6px 0 0; color: var(--muted); font-size: 13.5px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--emerald); color: #fff; border: 0; border-radius: 9px;
+    padding: 10px 15px; font-size: 13px; font-weight: 600;
+    box-shadow: 0 6px 16px rgba(16,185,129,.28);
+  }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .kpi { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 17px 18px; box-shadow: 0 1px 2px rgba(23,32,51,.04); }
+  .kpi-top { display: flex; align-items: center; justify-content: space-between; }
+  .kpi-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .kpi-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; }
+  .kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -.03em; margin-top: 10px; }
+  .kpi-trend { font-size: 11.5px; margin-top: 6px; color: var(--emerald-dark); font-weight: 600; }
+  .kpi-trend.muted { color: var(--muted); font-weight: 500; }
+
+  .row { display: grid; gap: 16px; margin-top: 16px; }
+  .row.two { grid-template-columns: 1.35fr 1fr; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 1px 2px rgba(23,32,51,.04); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+  .card-head h3 { margin: 0; font-size: 14px; font-weight: 700; }
+  .card-head a { color: var(--emerald-dark); font-size: 12px; font-weight: 600; text-decoration: none; }
+  .card-body { padding: 16px 18px; }
+
+  /* bar chart */
+  .chart { display: flex; align-items: flex-end; gap: 26px; height: 176px; padding: 8px 6px 0; }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+  .bar { width: 46px; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg,#34D399,#10B981); }
+  .bar.alt { background: linear-gradient(180deg,#94A3B8,#64748B); }
+  .bar.amber { background: linear-gradient(180deg,#FBBF24,#F59E0B); }
+  .bar.rose { background: linear-gradient(180deg,#FB7185,#F43F5E); }
+  .bar-num { font-size: 12px; font-weight: 700; color: var(--navy); }
+  .bar-label { font-size: 11.5px; color: var(--muted); }
+
+  .report { display: flex; align-items: flex-start; gap: 11px; padding: 11px 0; border-bottom: 1px dashed var(--line); }
+  .report:last-child { border-bottom: 0; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; flex: 0 0 9px; }
+  .report-main { min-width: 0; flex: 1; }
+  .report-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .tag { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .tag.fake { background: #FEF3C7; color: #B45309; }
+  .tag.scam { background: #FEE2E2; color: #B91C1C; }
+  .tag.off { background: #EDE9FE; color: #6D28D9; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 0 12px 10px; }
+  td { font-size: 12.5px; padding: 11px 12px; border-top: 1px solid var(--line); color: #334155; }
+  td strong { color: var(--navy); font-weight: 600; }
+  .status { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .status.hide { background: #FEF3C7; color: #B45309; }
+  .status.block { background: #FEE2E2; color: #B91C1C; }
+  .status.warn { background: #DBEAFE; color: #1D4ED8; }
+  .status.restore { background: #DCFCE7; color: #15803D; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <div>
+        <div class="brand-name">BorrowBox</div>
+        <div class="brand-sub">ADMIN CONSOLE</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Overview</div>
+    <nav class="nav">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><path d="M16 8h5M18.5 5.5v5"/></svg>
+        Users
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>
+        Products
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h16M4 19h10"/></svg>
+        Requests
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 4.5v5c0 5-3.8 8.6-9 9.5-5.2-.9-9-4.5-9-9.5v-5L12 3z"/><path d="M12 8v5"/><circle cx="12" cy="16" r="1"/></svg>
+        Reports <span class="badge-count">6</span>
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5z"/></svg>
+        Reviews
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="18" r="2.5"/></svg>
+        Categories
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Activity Logs
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H10a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V10a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+        Settings
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="site-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6L4 12l6 6"/><path d="M20 12H4"/></svg>
+        Back to marketplace
+      </div>
+      <div class="admin-mini">
+        <div class="avatar">A</div>
+        <div>
+          <div class="name">Admin User</div>
+          <div class="role">Super admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <h1>Dashboard</h1>
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+        Search users, products, reports…
+      </div>
+      <div class="topbar-right">
+        <span class="pill">MongoDB connected</span>
+        <span>Nov 11, 2026</span>
+        <div class="avatar" style="width:30px;height:30px;">A</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="welcome">
+        <div>
+          <h2>Welcome back, Admin</h2>
+          <p>Here is what is happening on BorrowBox today.</p>
+        </div>
+        <button class="btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+          Review open reports
+        </button>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-label">Total users</span>
+            <span class="kpi-icon" style="background:#ECFDF5;color:#059669;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><path d="M16 8h5M18.5 5.5v5"/></svg>
+            </span>
+          </div>
+          <div class="kpi-value">128</div>
+          <div class="kpi-trend">↑ 12 this week</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-label">Active listings</span>
+            <span class="kpi-icon" style="background:#EFF6FF;color:#2563EB;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7"/></svg>
+            </span>
+          </div>
+          <div class="kpi-value">46</div>
+          <div class="kpi-trend muted">2 hidden · 1 removed</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-label">Open reports</span>
+            <span class="kpi-icon" style="background:#FEF2F2;color:#DC2626;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 4.5v5c0 5-3.8 8.6-9 9.5-5.2-.9-9-4.5-9-9.5v-5L12 3z"/><path d="M12 8v5"/><circle cx="12" cy="16" r="1"/></svg>
+            </span>
+          </div>
+          <div class="kpi-value">6</div>
+          <div class="kpi-trend" style="color:#DC2626;">Needs attention</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-label">Pending requests</span>
+            <span class="kpi-icon" style="background:#FFFBEB;color:#D97706;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </span>
+          </div>
+          <div class="kpi-value">5</div>
+          <div class="kpi-trend muted">Awaiting owner decision</div>
+        </div>
+      </div>
+
+      <div class="row two">
+        <div class="card">
+          <div class="card-head">
+            <h3>Borrow requests overview</h3>
+            <a href="#">View all</a>
+          </div>
+          <div class="card-body">
+            <div class="chart">
+              <div class="bar-wrap"><span class="bar-num">5</span><div class="bar amber" style="height:28px"></div><span class="bar-label">Pending</span></div>
+              <div class="bar-wrap"><span class="bar-num">9</span><div class="bar" style="height:52px"></div><span class="bar-label">Accepted</span></div>
+              <div class="bar-wrap"><span class="bar-num">22</span><div class="bar alt" style="height:124px"></div><span class="bar-label">Completed</span></div>
+              <div class="bar-wrap"><span class="bar-num">4</span><div class="bar rose" style="height:24px"></div><span class="bar-label">Cancelled</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Moderation queue</h3>
+            <a href="#">Open reports</a>
+          </div>
+          <div class="card-body" style="padding-top:6px;">
+            <div class="report">
+              <span class="dot" style="background:#F59E0B;"></span>
+              <div class="report-main">
+                <div class="report-title">Cordless Drill — Bosch GSB 550</div>
+                <div class="report-meta">Fake listing · reported by Rahul</div>
+              </div>
+              <span class="tag fake">Fake listing</span>
+            </div>
+            <div class="report">
+              <span class="dot" style="background:#EF4444;"></span>
+              <div class="report-main">
+                <div class="report-title">Projector — Epson EB-X41</div>
+                <div class="report-meta">Scam / fraud · reported by Neha</div>
+              </div>
+              <span class="tag scam">Scam</span>
+            </div>
+            <div class="report">
+              <span class="dot" style="background:#8B5CF6;"></span>
+              <div class="report-main">
+                <div class="report-title">Review on Camping Tent</div>
+                <div class="report-meta">Offensive content · reported by Arjun</div>
+              </div>
+              <span class="tag off">Offensive</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="card-head">
+            <h3>Recent admin activity</h3>
+            <a href="#">View audit log</a>
+          </div>
+          <div class="card-body" style="padding: 4px 6px 8px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Admin</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>Reason</th>
+                  <th>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Admin User</strong></td>
+                  <td><span class="status block">Block user</span></td>
+                  <td>spam.seller@example.com</td>
+                  <td class="muted">Fraud confirmed</td>
+                  <td class="muted">2 min ago</td>
+                </tr>
+                <tr>
+                  <td><strong>Admin User</strong></td>
+                  <td><span class="status hide">Hide product</span></td>
+                  <td>Cordless Drill — Bosch GSB 550</td>
+                  <td class="muted">Fake listing</td>
+                  <td class="muted">18 min ago</td>
+                </tr>
+                <tr>
+                  <td><strong>Admin User</strong></td>
+                  <td><span class="status warn">Warn user</span></td>
+                  <td>late.returner@example.com</td>
+                  <td class="muted">Late returns</td>
+                  <td class="muted">1 hr ago</td>
+                </tr>
+                <tr>
+                  <td><strong>Admin User</strong></td>
+                  <td><span class="status restore">Restore review</span></td>
+                  <td>Review on Camping Tent</td>
+                  <td class="muted">Appeal accepted</td>
+                  <td class="muted">3 hrs ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -4,6 +4,7 @@ import { api } from '../services/api'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
+import { ConfirmDialog } from '../components/ui/Modal'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
 import {
@@ -58,6 +59,8 @@ export default function MyProductsPage() {
   const [reloadKey, setReloadKey] = useState(0)
   const [filter, setFilter] = useState('all')
   const [pendingId, setPendingId] = useState(null)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -252,7 +255,40 @@ export default function MyProductsPage() {
               const updatedDate = formatDate(product.updatedAt)
               const isPending = pendingId === product.id
 
-              return (
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setIsDeleting(true)
+
+    try {
+      await api.deleteProduct(deleteTarget.id)
+      setProducts((current) =>
+        current.filter((item) => item.id !== deleteTarget.id)
+      )
+      toast.success(
+        'Listing deleted',
+        'Your listing has been permanently removed.'
+      )
+      setDeleteTarget(null)
+    } catch (err) {
+      if (err.status === 401) {
+        try {
+          await refresh()
+          toast.error('Could not verify your session', 'Please try again.')
+        } catch {
+          toast.error('Your session has expired', 'Please log in again.')
+        }
+        return
+      }
+      toast.error(
+        'Could not delete listing',
+        err.message || 'Please try again.'
+      )
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  return (
                 <article
                   key={product.id}
                   className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-card transition-shadow hover:shadow-elevated"
@@ -311,11 +347,19 @@ export default function MyProductsPage() {
                           variant={product.isPublished ? 'secondary' : 'primary'}
                           size="sm"
                           loading={isPending}
-                          disabled={isPending}
+                          disabled={isPending || isDeleting}
                           onClick={() => handlePublication(product)}
                           className="ml-auto"
                         >
                           {product.isPublished ? 'Unpublish' : 'Publish'}
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          disabled={isPending || isDeleting}
+                          onClick={() => setDeleteTarget(product)}
+                        >
+                          Delete
                         </Button>
                       </div>
                     </div>
@@ -326,6 +370,23 @@ export default function MyProductsPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => {
+          if (!isDeleting) setDeleteTarget(null)
+        }}
+        onConfirm={handleDelete}
+        title="Delete listing?"
+        message={
+          deleteTarget
+            ? `Delete "${deleteTarget.title}"? This permanently removes the listing and cannot be undone. Listings with pending or active borrow requests cannot be deleted.`
+            : ''
+        }
+        confirmText="Delete listing"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   )
 }

@@ -1,11 +1,11 @@
-export function Pagination({ page, totalPages, onPageChange, className = '' }) {
+export function Pagination({ page, totalPages, onPageChange, className = '', ariaLabel = 'Pagination' }) {
   if (!totalPages || totalPages <= 1) return null
 
   const canGoPrevious = page > 1
   const canGoNext = page < totalPages
 
   return (
-    <nav className={`flex flex-wrap items-center justify-center gap-3 ${className}`} aria-label="Product pagination">
+    <nav className={`flex flex-wrap items-center justify-center gap-3 ${className}`} aria-label={ariaLabel}>
       <button
         type="button"
         onClick={() => onPageChange(page - 1)}

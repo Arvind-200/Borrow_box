@@ -8,6 +8,7 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "seed": "node scripts/seed.js",
+    "create:admin": "node scripts/createAdmin.js",
     "test": "node --test test/*.test.js",
     "test:integration": "node --test test/integration/*.test.js"
   },

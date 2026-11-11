@@ -25,3 +25,17 @@ export async function requireAuth(req, res, next) {
     next(error)
   }
 }
+
+export function requireAdmin(req, res, next) {
+  if (!req.user) {
+    return next(new ApiError(401, 'Authentication required'))
+  }
+  if (req.user.status === 'blocked') {
+    return next(new ApiError(403, 'This account has been blocked'))
+  }
+  if (req.user.role !== 'admin') {
+    return next(new ApiError(403, 'Admin access required'))
+  }
+
+  next()
+}

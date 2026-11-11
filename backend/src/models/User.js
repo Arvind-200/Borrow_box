@@ -1,5 +1,8 @@
 import mongoose from 'mongoose'
 
+export const USER_ROLES = ['user', 'admin']
+export const USER_STATUSES = ['active', 'blocked']
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -23,13 +26,33 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
+      enum: USER_ROLES,
       default: 'user',
     },
     status: {
       type: String,
-      enum: ['active', 'blocked'],
+      enum: USER_STATUSES,
       default: 'active',
+    },
+    ratingAverage: {
+      type: Number,
+      default: 0,
+      min: [0, 'Rating average cannot be negative'],
+      max: [5, 'Rating average cannot exceed 5'],
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+      min: [0, 'Review count cannot be negative'],
+    },
+    warningCount: {
+      type: Number,
+      default: 0,
+      min: [0, 'Warning count cannot be negative'],
+    },
+    lastWarnedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

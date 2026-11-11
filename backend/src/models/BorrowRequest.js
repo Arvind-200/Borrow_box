@@ -6,6 +6,7 @@ export const BORROW_REQUEST_STATUSES = [
   'Accepted',
   'Rejected',
   'Cancelled',
+  'Completed',
 ]
 
 export const BORROW_REQUEST_DECISION_SOURCES = ['owner', 'system']
@@ -58,7 +59,8 @@ const borrowRequestSchema = new mongoose.Schema(
       type: String,
       enum: {
         values: BORROW_REQUEST_STATUSES,
-        message: 'Status must be one of: Pending, Accepted, Rejected, Cancelled',
+        message:
+          'Status must be one of: Pending, Accepted, Rejected, Cancelled, Completed',
       },
       default: 'Pending',
     },
@@ -94,6 +96,15 @@ const borrowRequestSchema = new mongoose.Schema(
       default: null,
     },
     cancelledBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    completedAt: {
+      type: Date,
+      default: null,
+    },
+    completedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       default: null,

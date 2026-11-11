@@ -25,6 +25,7 @@ const icons = {
   info: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   box: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>,
   requests: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8M8 11h8M8 15h5m-9 5V6a2 2 0 012-2h11a2 2 0 012 2v12l-4-3-4 3-4-3-3 3z" /></svg>,
+  shield: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>,
 }
 
 export function MobileNavPanel({ isOpen, onClose }) {
@@ -115,6 +116,20 @@ export function MobileNavPanel({ isOpen, onClose }) {
                   </Link>
                 </li>
               ))}
+              {isAuthenticated && user?.role === 'admin' && (
+                <li>
+                  <Link
+                    to="/admin"
+                    onClick={onClose}
+                    className="flex items-center gap-3 rounded-xl border border-primary-100 bg-primary-50 px-4 py-3 text-base font-semibold text-primary-700 transition-colors hover:bg-primary-100"
+                  >
+                    <span className="flex-shrink-0 text-primary-600" aria-hidden="true">
+                      {icons.shield}
+                    </span>
+                    Admin console
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
 

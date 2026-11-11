@@ -43,3 +43,29 @@ export const borrowRequestCreateLimiter = rateLimit({
     )
   },
 })
+
+export const reviewCreateLimiter = rateLimit({
+  ...RATE_LIMIT_OPTIONS,
+  windowMs: 60 * 60 * 1000,
+  limit: 20,
+  keyGenerator: (req) => String(req.user._id),
+  handler: (req, res) => {
+    sendRateLimitResponse(
+      res,
+      'Too many review attempts. Please try again later.'
+    )
+  },
+})
+
+export const reportCreateLimiter = rateLimit({
+  ...RATE_LIMIT_OPTIONS,
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  keyGenerator: (req) => String(req.user._id),
+  handler: (req, res) => {
+    sendRateLimitResponse(
+      res,
+      'Too many report attempts. Please try again later.'
+    )
+  },
+})

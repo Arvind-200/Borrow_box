@@ -16,6 +16,7 @@ import {
   createProduct as createProductService,
   updateOwnedProduct as updateOwnedProductService,
   updateOwnedProductPublication as updateOwnedProductPublicationService,
+  deleteOwnedProduct as deleteOwnedProductService,
 } from '../services/productService.js'
 
 export async function uploadProductImage(req, res, next) {
@@ -112,6 +113,15 @@ export async function updateProductPublication(req, res, next) {
       isPublished
     )
     res.status(200).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function deleteProduct(req, res, next) {
+  try {
+    await deleteOwnedProductService(req.params.id, req.user._id)
+    res.status(204).send()
   } catch (error) {
     next(error)
   }

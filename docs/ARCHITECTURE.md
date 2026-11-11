@@ -114,6 +114,13 @@ AdminActivityLog:
 - metadata
 - timestamp
 
+PlatformSetting (singleton):
+- site name
+- support email
+- allowNewListings
+- updatedBy
+- timestamps
+
 Do not implement every field blindly. Finalize schema before coding each entity.
 
 ## Location strategy

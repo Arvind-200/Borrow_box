@@ -14,6 +14,7 @@ const statusVariants = {
   Accepted: 'success',
   Rejected: 'danger',
   Cancelled: 'subtle',
+  Completed: 'primary',
 }
 
 function formatTimestamp(value) {
@@ -33,6 +34,9 @@ export function BorrowRequestCard({
   onAccept,
   onReject,
   onCancel,
+  onComplete,
+  onReview,
+  isReviewed = false,
   isBusy = false,
 }) {
   const [dialog, setDialog] = useState(null)
@@ -47,19 +51,25 @@ export function BorrowRequestCard({
   const decisionDate =
     status === 'Cancelled'
       ? formatTimestamp(request.cancelledAt)
-      : status === 'Accepted' || status === 'Rejected'
-        ? formatTimestamp(request.decidedAt)
-        : null
+      : status === 'Completed'
+        ? formatTimestamp(request.completedAt)
+        : status === 'Accepted' || status === 'Rejected'
+          ? formatTimestamp(request.decidedAt)
+          : null
   const decisionLabel =
     status === 'Cancelled'
       ? 'Cancelled on'
-      : status === 'Accepted' || status === 'Rejected'
-        ? 'Decided on'
-        : null
+      : status === 'Completed'
+        ? 'Completed on'
+        : status === 'Accepted' || status === 'Rejected'
+          ? 'Decided on'
+          : null
 
   const canCancel =
     role === 'borrower' && (status === 'Pending' || status === 'Accepted')
   const canDecide = role === 'owner' && status === 'Pending'
+  const canComplete = role === 'owner' && status === 'Accepted'
+  const canReview = role === 'borrower' && status === 'Completed'
 
   const closeDialog = () => {
     if (isBusy) return
@@ -72,6 +82,7 @@ export function BorrowRequestCard({
     if (action === 'accept') onAccept?.(request)
     if (action === 'reject') onReject?.(request)
     if (action === 'cancel') onCancel?.(request)
+    if (action === 'complete') onComplete?.(request)
   }
 
   const dialogConfig = {
@@ -99,6 +110,14 @@ export function BorrowRequestCard({
           : 'The owner will no longer see this pending request.',
       confirmText: 'Cancel request',
       variant: 'danger',
+      onConfirm: confirmAction,
+    },
+    complete: {
+      title: 'Mark this item as returned?',
+      message:
+        'Confirm that the item has been returned. The listing becomes available again and the borrower can then leave a review.',
+      confirmText: 'Mark returned',
+      variant: 'primary',
       onConfirm: confirmAction,
     },
   }
@@ -180,7 +199,7 @@ export function BorrowRequestCard({
             )}
           </div>
 
-          {(canCancel || canDecide) && (
+          {(canCancel || canDecide || canComplete || canReview) && (
             <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
               {canDecide && (
                 <>
@@ -201,6 +220,55 @@ export function BorrowRequestCard({
                     Reject
                   </Button>
                 </>
+              )}
+              {canComplete && (
+                <Button
+                  size="sm"
+                  onClick={() => setDialog('complete')}
+                  disabled={isBusy}
+                >
+                  Mark returned
+                </Button>
+              )}
+              {canReview && (
+                <Button
+                  size="sm"
+                  variant={isReviewed ? 'secondary' : 'primary'}
+                  disabled={isBusy || isReviewed}
+                  onClick={() => onReview?.(request)}
+                >
+                  {isReviewed ? (
+                    <>
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      Reviewed
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      Leave a review
+                    </>
+                  )}
+                </Button>
               )}
               {canCancel && (
                 <Button

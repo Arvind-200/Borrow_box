@@ -6,7 +6,10 @@ import { useToast } from '../components/ui/Toast.jsx'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
+import { StarRating } from '../components/ui/StarRating'
 import { RequestBorrowModal } from '../components/borrow/RequestBorrowModal'
+import { ReportModal } from '../components/report/ReportModal'
+import { ReviewSection } from '../components/review/ReviewSection'
 import { ProductCategoryIcon, getCategoryGradient } from '../components/product/productVisuals'
 
 const conditionLabels = {
@@ -28,6 +31,7 @@ export default function ProductDetailPage() {
   const [error, setError] = useState(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [isRequestOpen, setIsRequestOpen] = useState(false)
+  const [isReportOpen, setIsReportOpen] = useState(false)
   const [requestSent, setRequestSent] = useState(false)
   const [activeRequest, setActiveRequest] = useState(null)
   const [isActiveRequestLoading, setIsActiveRequestLoading] = useState(false)
@@ -187,6 +191,17 @@ export default function ProductDetailPage() {
     setIsRequestOpen(true)
   }
 
+  const handleReportClick = () => {
+    if (isAuthLoading) return
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: returnPath } })
+      return
+    }
+
+    setIsReportOpen(true)
+  }
+
   const handleRequestSuccess = (request) => {
     setIsRequestOpen(false)
     setRequestSent(true)
@@ -312,7 +327,19 @@ export default function ProductDetailPage() {
             </h1>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="text-sm text-neutral-500">Reviews coming soon</span>
+              {product.rating?.count > 0 ? (
+                <span className="inline-flex items-center gap-1.5 text-sm text-neutral-600">
+                  <StarRating
+                    rating={product.rating.average}
+                    size="sm"
+                    showCount
+                    reviewCount={product.rating.count}
+                  />
+                  <span className="text-neutral-500">reviews</span>
+                </span>
+              ) : (
+                <span className="text-sm text-neutral-500">No reviews yet</span>
+              )}
               <span className="inline-flex items-center gap-1.5 text-sm text-neutral-500">
                 <svg className="h-4 w-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -339,6 +366,17 @@ export default function ProductDetailPage() {
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">Listed by</p>
                       <p className="text-sm font-semibold text-navy-900">{ownerName}</p>
+                      {product.owner?.rating?.count > 0 && (
+                        <div className="mt-0.5">
+                          <StarRating
+                            rating={product.owner.rating.average}
+                            size="sm"
+                            showRating={false}
+                            showCount
+                            reviewCount={product.owner.rating.count}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -371,6 +409,18 @@ export default function ProductDetailPage() {
                   >
                     View your requests
                   </Link>
+                </p>
+              )}
+
+              {!isOwner && (
+                <p className="mt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={handleReportClick}
+                    className="rounded text-xs font-medium text-neutral-400 underline-offset-2 transition-colors hover:text-error-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-error-500"
+                  >
+                    Report this listing
+                  </button>
                 </p>
               )}
             </div>
@@ -412,6 +462,12 @@ export default function ProductDetailPage() {
                 </div>
               )}
             </dl>
+
+            <ReviewSection
+              key={product.id}
+              productId={product.id}
+              rating={product.rating}
+            />
           </section>
         </div>
       </div>
@@ -421,6 +477,14 @@ export default function ProductDetailPage() {
         onClose={() => setIsRequestOpen(false)}
         product={product}
         onSuccess={handleRequestSuccess}
+      />
+
+      <ReportModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        targetType="product"
+        targetId={product.id}
+        targetLabel={product.title}
       />
     </div>
   )

@@ -39,8 +39,8 @@
 - [x] Phase 4C: Add product, edit own product, publish/unpublish own product (server-side ownership checks)
 - [x] product listing (frontend integration)
 - [x] product detail (frontend page)
-- delete own product
-- image handling
+- [x] delete own product
+- [x] image handling
 
 ## Phase 5 - Search
 - [x] text search
@@ -50,36 +50,39 @@
 - [x] exact area/location filter, area options endpoint, and nearby-ready empty state
 
 ## Phase 6 - Borrow workflow
-- create request
-- pending state
-- owner incoming requests
-- accept/reject
-- borrower status
-- history
+- [x] create request
+- [x] pending state
+- [x] owner incoming requests
+- [x] accept/reject
+- [x] borrower status
+- [x] history
 
 ## Phase 7 - Reviews
-- ratings
-- reviews
-- review eligibility
-- moderation
+- [x] Phase 7A: `Completed` borrow status plus owner "Mark returned" (releases the product)
+- [x] Phase 7B: Review model + validation (borrower -> owner/product only)
+- [x] Phase 7C: Review APIs, eligibility, and rating aggregation
+- [x] Phase 7D: Frontend review submission
+- [x] Phase 7E: Rating/review display
+- [x] Phase 7F: Moderation foundation (backend only)
+- [x] Phase 7G: Verification and docs
 
 ## Phase 8 - Reports and moderation
-- report product/user/review
-- admin report queue
-- warnings
-- hide/remove/restore
-- block/unblock
+- [x] report product/user/review
+- [x] admin report queue
+- [x] warnings
+- [x] hide/remove/restore
+- [x] block/unblock
 
 ## Phase 9 - Admin
-- dashboard
-- users
-- products
-- requests
-- reports
-- reviews
-- categories
-- activity logs
-- settings
+- [x] dashboard
+- [x] users
+- [x] products
+- [x] requests
+- [x] reports
+- [x] reviews
+- [x] categories
+- [x] activity logs
+- [x] settings
 
 ## Phase 10 - Polish
 - responsive QA

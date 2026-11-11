@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
+import { StarRating } from '../ui/StarRating'
 import { getCategoryGradient, ProductCategoryIcon } from './productVisuals'
 
 export function ProductCard({ product, onSave, className = '' }) {
@@ -96,6 +97,18 @@ export function ProductCard({ product, onSave, className = '' }) {
           </svg>
           <span className="truncate">{product.location || 'Location not specified'}</span>
         </div>
+
+        {product.rating?.count > 0 && (
+          <div className="mt-2 flex items-center gap-1.5">
+            <StarRating
+              rating={product.rating.average}
+              size="sm"
+              showCount
+              reviewCount={product.rating.count}
+            />
+            <span className="text-xs text-neutral-500">reviews</span>
+          </div>
+        )}
 
         <div className="mt-4 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1">

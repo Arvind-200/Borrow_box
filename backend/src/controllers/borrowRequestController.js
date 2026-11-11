@@ -7,6 +7,7 @@ import {
   acceptBorrowRequest as acceptBorrowRequestService,
   rejectBorrowRequest as rejectBorrowRequestService,
   cancelBorrowRequest as cancelBorrowRequestService,
+  completeBorrowRequest as completeBorrowRequestService,
 } from '../services/borrowRequestService.js'
 
 export async function createBorrowRequest(req, res, next) {
@@ -66,6 +67,18 @@ export async function rejectBorrowRequest(req, res, next) {
 export async function cancelBorrowRequest(req, res, next) {
   try {
     const result = await cancelBorrowRequestService(
+      req.params.id,
+      req.user._id
+    )
+    res.status(200).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function completeBorrowRequest(req, res, next) {
+  try {
+    const result = await completeBorrowRequestService(
       req.params.id,
       req.user._id
     )

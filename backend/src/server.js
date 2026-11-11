@@ -2,6 +2,9 @@ import app from './app.js'
 import { config, validateConfig } from './config/env.js'
 import { connectDB } from './config/db.js'
 import { initializeBorrowRequestWorkflow } from './services/borrowRequestService.js'
+import { initializeReviewWorkflow } from './services/reviewService.js'
+import { Report } from './models/Report.js'
+import { AdminActivityLog } from './models/AdminActivityLog.js'
 
 async function startServer() {
   try {
@@ -24,6 +27,9 @@ async function startServer() {
         `Borrow availability reconciled for ${borrowWorkflow.productsUpdated} product(s).`
       )
     }
+
+    await initializeReviewWorkflow()
+    await Promise.all([Report.init(), AdminActivityLog.init()])
 
     const server = app.listen(config.port, () => {
       console.log(`Server running on port ${config.port}`)

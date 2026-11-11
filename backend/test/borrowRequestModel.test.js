@@ -51,6 +51,7 @@ test('exports the approved statuses and decision sources', () => {
     'Accepted',
     'Rejected',
     'Cancelled',
+    'Completed',
   ])
   assert.deepEqual(BORROW_REQUEST_DECISION_SOURCES, ['owner', 'system'])
 })

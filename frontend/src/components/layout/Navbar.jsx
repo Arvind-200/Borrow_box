@@ -150,6 +150,17 @@ export function Navbar() {
                 </Link>
               ))}
             </div>
+            {isAuthenticated && user?.role === 'admin' && (
+              <Link
+                to="/admin"
+                className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-primary-400/30 bg-primary-500/10 px-3 py-2 text-sm font-semibold text-primary-300 transition-colors hover:bg-primary-500/20 hover:text-primary-200"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                Admin console
+              </Link>
+            )}
           </div>
         </div>
       </nav>

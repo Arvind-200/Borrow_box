@@ -51,6 +51,7 @@ function toPublicBorrowRequest(request) {
     decidedAt: request.decidedAt || null,
     decisionSource: request.decisionSource || null,
     cancelledAt: request.cancelledAt || null,
+    completedAt: request.completedAt || null,
   }
 }
 
@@ -183,6 +184,12 @@ export async function listMyBorrowRequests(borrowerId, query) {
 
 export async function listIncomingBorrowRequests(ownerId, query) {
   return listRequests(buildListFilter(ownerId, query.status), query)
+}
+
+export async function listAllBorrowRequests(query) {
+  const filter = {}
+  if (query.status) filter.status = query.status
+  return listRequests(filter, query)
 }
 
 export async function acceptBorrowRequest(requestId, ownerId) {
@@ -321,6 +328,44 @@ export async function cancelBorrowRequest(requestId, borrowerId) {
   })
 
   return getPopulatedRequest(cancelledId)
+}
+
+export async function completeBorrowRequest(requestId, ownerId) {
+  assertRequestId(requestId)
+
+  const completedId = await withTransaction(async (session) => {
+    const request = await BorrowRequest.findById(requestId).session(session)
+    if (!request) {
+      throw new ApiError(404, 'Borrow request not found')
+    }
+    if (String(request.owner) !== String(ownerId)) {
+      throw new ApiError(
+        403,
+        'Only the listing owner can mark this request as returned'
+      )
+    }
+    if (request.status !== 'Accepted') {
+      throw new ApiError(
+        409,
+        `Only accepted requests can be marked as returned (current status: ${request.status.toLowerCase()})`
+      )
+    }
+
+    request.status = 'Completed'
+    request.completedAt = new Date()
+    request.completedBy = ownerId
+    await request.save({ session })
+
+    const product = await Product.findById(request.product).session(session)
+    if (product && product.availability !== 'available') {
+      product.availability = 'available'
+      await product.save({ session })
+    }
+
+    return request._id
+  })
+
+  return getPopulatedRequest(completedId)
 }
 
 export async function reconcileBorrowAvailability() {
