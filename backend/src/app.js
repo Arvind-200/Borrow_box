@@ -1,3 +1,6 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -21,9 +24,18 @@ import adminCategoryRoutes from './routes/adminCategories.js'
 import adminSettingRoutes from './routes/adminSettings.js'
 import { uploadsDir } from './middleware/upload.js'
 
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url))
+const frontendDist = path.resolve(currentDirectory, '../../frontend/dist')
+
 const app = express()
 
 app.disable('x-powered-by')
+
+// Render terminates TLS and forwards requests through one proxy.
+if (config.nodeEnv === 'production') {
+  app.set('trust proxy', 1)
+}
+
 app.use(helmet())
 
 app.use(cors({
@@ -53,6 +65,17 @@ app.use('/api/admin/borrow-requests', adminBorrowRequestRoutes)
 app.use('/api/admin/activity-logs', adminActivityLogRoutes)
 app.use('/api/admin/categories', adminCategoryRoutes)
 app.use('/api/admin/settings', adminSettingRoutes)
+
+if (fs.existsSync(path.join(frontendDist, 'index.html'))) {
+  app.use(express.static(frontendDist))
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next()
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'))
+  })
+}
 
 app.use((req, res) => {
   res.status(404).json({

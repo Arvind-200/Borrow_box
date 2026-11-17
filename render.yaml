@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: borrowbox
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm ci --prefix backend && npm ci --prefix frontend --include=dev && npm run build --prefix frontend
+    startCommand: npm start --prefix backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

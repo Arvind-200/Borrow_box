@@ -237,6 +237,51 @@ Screenshots captured from the running app are in `docs/screenshots/`:
 The admin screenshots were captured with a temporary admin account that was
 deleted after the QA run.
 
+## Deploy free (Render + MongoDB Atlas)
+
+The app is designed to run as a single Render free web service: Express serves
+both the API and the built React app. One origin keeps the HttpOnly login cookie
+working without cross-site cookie changes. MongoDB Atlas M0 hosts the database.
+
+1. In Atlas, use a database user with read/write access and allow Render's
+   dynamic outbound traffic (`0.0.0.0/0` under Network Access for a free demo).
+   Copy the connection string and include the database name, for example
+   `/borrowbox`. The same database name must be used locally and on Render.
+2. In Render, choose **New > Blueprint** so `render.yaml` is used, or create a
+   web service manually with:
+   - Build command:
+     `npm ci --prefix backend && npm ci --prefix frontend --include=dev && npm run build --prefix frontend`
+   - Start command: `npm start --prefix backend`
+   - Plan: Free
+3. Set the environment variables in Render:
+   - `NODE_ENV=production`
+   - `MONGODB_URI=<Atlas URI including the database name>`
+   - `JWT_SECRET=<random secret of at least 32 characters>`
+   - `FRONTEND_URL=https://<your-service>.onrender.com`
+4. Deploy and check `https://<your-service>.onrender.com/api/health`.
+5. Free Render services have no shell, so run seed and admin bootstrap from your
+   machine against the same Atlas database:
+
+   ```powershell
+   cd backend
+   npm run seed
+   $env:ADMIN_NAME="BorrowBox Admin"
+   $env:ADMIN_EMAIL="admin@example.com"
+   $env:ADMIN_PASSWORD="replace-with-a-strong-password"
+   npm run create:admin
+   ```
+
+6. Open the deployed URL, sign up, browse, and log in to `/admin`.
+
+Free-tier notes:
+
+- The service sleeps after 15 minutes without traffic and wakes in about a
+  minute on the next request.
+- The filesystem is ephemeral, so uploaded images are lost when the service
+  restarts, redeploys, or sleeps. Listings fall back to category graphics.
+- Atlas M0 is limited to 512 MB and pauses after 30 days with no connections.
+- Never commit real credentials; set them only in Render's environment settings.
+
 ## Security notes
 
 - `.env` files and `backend/uploads/` are git-ignored; do not commit secrets.
