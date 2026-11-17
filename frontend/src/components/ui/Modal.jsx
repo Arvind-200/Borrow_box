@@ -1,6 +1,7 @@
-import { useEffect, Fragment } from 'react'
+import { useEffect, useId, useRef, Fragment } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from './Button'
+import { useFocusTrap } from '../../hooks/useFocusTrap.js'
 
 export function Modal({
   isOpen,
@@ -11,23 +12,19 @@ export function Modal({
   showCloseButton = true,
   closeOnOverlayClick = true,
 }) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-      return () => {
-        document.body.style.overflow = 'unset'
-      }
-    }
-  }, [isOpen])
+  const titleId = useId()
+  const dialogRef = useRef(null)
+
+  useFocusTrap(isOpen, dialogRef, { onEscape: onClose })
 
   useEffect(() => {
-    if (!isOpen) return
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose()
+    if (!isOpen) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
     }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose])
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -48,23 +45,26 @@ export function Modal({
       />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-slide-up">
         <div
+          ref={dialogRef}
           className={`
-            w-full ${sizes[size]} bg-white rounded-2xl shadow-xl
-            transform transition-all duration-300
+            w-full ${sizes[size]} max-h-[calc(100vh-2rem)] bg-white rounded-2xl shadow-xl
+            transform transition-all duration-300 flex flex-col overflow-hidden
           `}
           role="dialog"
           aria-modal="true"
-          aria-labelledby={title ? 'modal-title' : undefined}
+          aria-labelledby={title ? titleId : undefined}
+          tabIndex={-1}
         >
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+            <div className="flex flex-shrink-0 items-center justify-between gap-3 p-5 sm:p-6 border-b border-gray-100">
               {title && (
-                <h2 id="modal-title" className="text-xl font-semibold text-gray-900">
+                <h2 id={titleId} className="text-lg sm:text-xl font-semibold text-gray-900">
                   {title}
                 </h2>
               )}
               {showCloseButton && (
                 <button
+                  type="button"
                   onClick={onClose}
                   className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                   aria-label="Close modal"
@@ -76,7 +76,7 @@ export function Modal({
               )}
             </div>
           )}
-          <div className="p-6">
+          <div className="overflow-y-auto p-5 sm:p-6">
             {children}
           </div>
         </div>

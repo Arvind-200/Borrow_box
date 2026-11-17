@@ -7,6 +7,7 @@ import {
   ProductCategoryIcon,
   getCategoryGradient,
 } from '../product/productVisuals'
+import { ProductImage } from '../product/ProductImage'
 import { formatDateOnly } from '../../utils/dateOnly'
 
 const statusVariants = {
@@ -126,18 +127,22 @@ export function BorrowRequestCard({
     <article className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-card transition-shadow hover:shadow-elevated">
       <div className="flex flex-col sm:flex-row">
         <div className="relative h-40 overflow-hidden sm:h-auto sm:w-40 sm:flex-shrink-0">
-          {image ? (
-            <img src={image} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <div
-              className="flex h-full w-full items-center justify-center"
-              style={{ background: getCategoryGradient() }}
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/25 text-white backdrop-blur-sm">
-                <ProductCategoryIcon category="" className="h-7 w-7" />
+          <ProductImage
+            src={image}
+            alt=""
+            className="h-full w-full object-cover"
+            loading="lazy"
+            fallback={
+              <div
+                className="flex h-full w-full items-center justify-center"
+                style={{ background: getCategoryGradient() }}
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/25 text-white backdrop-blur-sm">
+                  <ProductCategoryIcon category="" className="h-7 w-7" />
+                </div>
               </div>
-            </div>
-          )}
+            }
+          />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col p-5">

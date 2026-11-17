@@ -82,8 +82,6 @@ const DEMO_PRODUCTS = [
     condition: 'good',
     images: [],
     tags: ['Popular', 'Photography'],
-    ratingAverage: 4.9,
-    reviewCount: 47,
   },
   {
     seedKey: 'demo-cordless-drill-set',
@@ -97,8 +95,6 @@ const DEMO_PRODUCTS = [
     condition: 'good',
     images: [],
     tags: ['DIY', 'Home repair'],
-    ratingAverage: 4.7,
-    reviewCount: 32,
   },
   {
     seedKey: 'demo-bluetooth-speaker',
@@ -112,8 +108,6 @@ const DEMO_PRODUCTS = [
     condition: 'like-new',
     images: [],
     tags: ['New', 'Audio'],
-    ratingAverage: 4.6,
-    reviewCount: 28,
   },
   {
     seedKey: 'demo-projector-screen',
@@ -127,8 +121,6 @@ const DEMO_PRODUCTS = [
     condition: 'good',
     images: [],
     tags: ['Events', 'Movie night'],
-    ratingAverage: 4.8,
-    reviewCount: 19,
   },
   {
     seedKey: 'demo-gaming-console',
@@ -142,8 +134,6 @@ const DEMO_PRODUCTS = [
     condition: 'good',
     images: [],
     tags: ['Popular', 'Family'],
-    ratingAverage: 4.9,
-    reviewCount: 41,
   },
   {
     seedKey: 'demo-4-person-tent',
@@ -157,8 +147,6 @@ const DEMO_PRODUCTS = [
     condition: 'fair',
     images: [],
     tags: ['Camping', 'Weekend'],
-    ratingAverage: 4.5,
-    reviewCount: 22,
   },
   {
     seedKey: 'demo-road-bicycle',
@@ -172,8 +160,6 @@ const DEMO_PRODUCTS = [
     condition: 'good',
     images: [],
     tags: ['Cycling', 'Commute'],
-    ratingAverage: 4.7,
-    reviewCount: 15,
   },
   {
     seedKey: 'demo-rotary-hammer-drill',
@@ -187,8 +173,6 @@ const DEMO_PRODUCTS = [
     condition: 'good',
     images: [],
     tags: ['DIY', 'Heavy duty'],
-    ratingAverage: 4.6,
-    reviewCount: 18,
   },
 ]
 
@@ -247,6 +231,9 @@ async function seed() {
             ...fields,
             owner: owner._id,
             category: category._id,
+            isPublished: true,
+            ratingAverage: 0,
+            reviewCount: 0,
           },
           $setOnInsert: { seedKey },
         },

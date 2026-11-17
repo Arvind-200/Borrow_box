@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminStatCard } from '../../components/admin/AdminStatCard'
 import { AdminPanel } from '../../components/admin/AdminPanel'
+import { AdminTableScroll } from '../../components/admin/AdminTableScroll'
 import { AdminIcon } from '../../components/admin/AdminIcon'
 import { AdminStatusBadge, reportStatusTone } from '../../components/admin/AdminStatusBadge'
 import {
@@ -24,7 +25,6 @@ import {
   adminTableHeadCell,
   adminTableCell,
   adminTableRow,
-  adminTableWrapper,
 } from '../../components/admin/adminStyles'
 
 const ACTIVITY_ICONS = {
@@ -239,7 +239,7 @@ export default function AdminDashboardPage() {
                   The moderation queue is clear.
                 </p>
               ) : (
-                <div className={adminTableWrapper}>
+                <AdminTableScroll label="Moderation queue table">
                   <table className={adminTable}>
                     <thead className="bg-[#F8FAFC]">
                       <tr>
@@ -278,7 +278,7 @@ export default function AdminDashboardPage() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </AdminTableScroll>
               )}
             </AdminPanel>
           </div>

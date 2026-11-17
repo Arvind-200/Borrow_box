@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Badge } from '../ui/Badge'
-import { Button } from '../ui/Button'
 import { StarRating } from '../ui/StarRating'
 import { getCategoryGradient, ProductCategoryIcon } from './productVisuals'
+import { ProductImage } from './ProductImage'
 
 export function ProductCard({ product, onSave, className = '' }) {
   const navigate = useNavigate()
@@ -35,20 +35,19 @@ export function ProductCard({ product, onSave, className = '' }) {
       onClick={handleCardClick}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100">
-        {image ? (
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center" style={{ background: placeholderGradient }}>
-            <div className="w-16 h-16 rounded-2xl bg-white/25 backdrop-blur-sm flex items-center justify-center text-white">
-              <ProductCategoryIcon category={categoryName} className="w-7 h-7" />
+        <ProductImage
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          fallback={
+            <div className="w-full h-full flex items-center justify-center" style={{ background: placeholderGradient }}>
+              <div className="w-16 h-16 rounded-2xl bg-white/25 backdrop-blur-sm flex items-center justify-center text-white">
+                <ProductCategoryIcon category={categoryName} className="w-7 h-7" />
+              </div>
             </div>
-          </div>
-        )}
+          }
+        />
 
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
           <Badge variant="primary" size="sm" className="font-medium">
@@ -110,7 +109,7 @@ export function ProductCard({ product, onSave, className = '' }) {
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between gap-2">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold text-navy-900">₹{rentPerDay}</span>
             <span className="text-sm text-neutral-500">/day</span>
@@ -132,11 +131,9 @@ export function ProductCard({ product, onSave, className = '' }) {
           <Link
             to={productPath}
             onClick={(e) => e.stopPropagation()}
-            className="w-full"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-primary-500 px-4 py-2 text-base font-medium text-primary-700 transition-colors hover:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
-            <Button variant="outline" className="w-full" size="md">
-              View Details
-            </Button>
+            View Details
           </Link>
         </div>
       </div>

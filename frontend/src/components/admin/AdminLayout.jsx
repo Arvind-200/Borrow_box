@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { Logo } from '../ui/Logo.jsx'
+import { LoadingSpinner } from '../ui/LoadingSpinner.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useToast } from '../ui/Toast.jsx'
 import { AdminIcon } from './AdminIcon.jsx'
+import { useFocusTrap } from '../../hooks/useFocusTrap.js'
 
 const NAV_SECTIONS = [
   {
@@ -145,6 +147,27 @@ export function AdminLayout() {
   const { user, logout } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
+  const sidebarRef = useRef(null)
+  const menuButtonRef = useRef(null)
+
+  useFocusTrap(sidebarOpen, sidebarRef, {
+    onEscape: () => setSidebarOpen(false),
+    fallbackFocusRef: menuButtonRef,
+  })
+
+  useEffect(() => {
+    if (!sidebarOpen) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setSidebarOpen(false)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [sidebarOpen])
 
   const handleLogout = async () => {
     try {
@@ -158,6 +181,9 @@ export function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
+      <a href="#admin-main-content" className="skip-link">
+        Skip to admin content
+      </a>
       {sidebarOpen && (
         <button
           type="button"
@@ -168,12 +194,17 @@ export function AdminLayout() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[272px] bg-[#0F1626] shadow-2xl transition-transform duration-200 ease-out lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        id="admin-sidebar"
+        ref={sidebarRef}
+        className={`fixed inset-y-0 left-0 z-50 w-[272px] bg-[#0F1626] shadow-2xl transition-transform duration-200 ease-out lg:visible lg:translate-x-0 ${
+          sidebarOpen ? 'visible translate-x-0' : 'invisible -translate-x-full'
         }`}
+        aria-label="Admin navigation panel"
+        tabIndex={-1}
       >
         <button
           type="button"
+          data-autofocus="true"
           onClick={() => setSidebarOpen(false)}
           className="absolute right-3 top-4 rounded-lg p-2 text-white/50 transition-colors hover:bg-white/10 hover:text-white lg:hidden"
           aria-label="Close menu"
@@ -186,11 +217,13 @@ export function AdminLayout() {
       <div className="lg:pl-[272px]">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#E2E8F0] bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-8">
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setSidebarOpen(true)}
             className="rounded-lg p-2 text-[#475569] transition-colors hover:bg-[#F1F5F9] lg:hidden"
             aria-label="Open admin menu"
             aria-expanded={sidebarOpen}
+            aria-controls="admin-sidebar"
           >
             <AdminIcon name="menu" className="h-5 w-5" />
           </button>
@@ -231,8 +264,21 @@ export function AdminLayout() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-          <Outlet />
+        <main
+          id="admin-main-content"
+          tabIndex={-1}
+          className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
+        >
+          <Suspense
+            fallback={
+              <div className="flex min-h-[50vh] items-center justify-center">
+                <LoadingSpinner size="lg" />
+                <span className="sr-only">Loading admin page</span>
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

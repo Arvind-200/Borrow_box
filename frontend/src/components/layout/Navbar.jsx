@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Button } from '../ui/Button'
 import { SearchBar } from '../search/SearchBar'
 import { MobileNavPanel } from './MobileNavPanel'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
@@ -111,17 +110,30 @@ export function Navbar() {
             </div>
 
             <div className="lg:hidden flex items-center gap-2 ml-auto">
-              <Link
-                to="/products/new"
-                className="px-3 py-2 rounded-lg text-sm font-semibold bg-primary-500 text-white hover:bg-primary-600 transition-colors"
-              >
-                List an Item
-              </Link>
+              {!isAuthLoading && (
+                isAuthenticated ? (
+                  <Link
+                    to="/products/new"
+                    className="px-3 py-2 rounded-lg text-sm font-semibold bg-primary-500 text-white hover:bg-primary-600 transition-colors"
+                  >
+                    List an Item
+                  </Link>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="px-3 py-2 rounded-lg text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    Log in
+                  </Link>
+                )
+              )}
               <button
+                type="button"
                 onClick={() => setMobileMenuOpen(true)}
                 className="p-2 rounded-lg text-white/85 hover:bg-white/10 hover:text-white transition-colors"
                 aria-label="Open menu"
                 aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-nav-panel"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />

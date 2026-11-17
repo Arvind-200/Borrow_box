@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { TableSkeleton } from '../../components/ui/LoadingSpinner'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminPanel } from '../../components/admin/AdminPanel'
+import { AdminTableScroll } from '../../components/admin/AdminTableScroll'
 import { AdminEmptyState } from '../../components/admin/AdminEmptyState'
 import { AdminIcon } from '../../components/admin/AdminIcon'
 import { AdminStatusBadge } from '../../components/admin/AdminStatusBadge'
@@ -22,7 +23,6 @@ import {
   adminTableHeadCell,
   adminTableCell,
   adminTableRow,
-  adminTableWrapper,
 } from '../../components/admin/adminStyles'
 
 const EMPTY_FORM = {
@@ -245,7 +245,7 @@ export default function AdminCategoriesPage() {
         )}
 
         {status === 'success' && filteredCategories.length > 0 && (
-          <div className={adminTableWrapper}>
+          <AdminTableScroll label="Categories table">
             <table className={adminTable}>
               <thead className="bg-[#F8FAFC]">
                 <tr>
@@ -318,7 +318,7 @@ export default function AdminCategoriesPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </AdminTableScroll>
         )}
       </AdminPanel>
 

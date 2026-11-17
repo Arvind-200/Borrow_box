@@ -33,8 +33,8 @@ export default function AboutPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-base text-neutral-500">
             BorrowBox lets people list items with a pickup area so others can
-            browse and send borrow requests in the community. Returns, reviews,
-            and reporting are planned for future phases.
+            browse, send borrow requests, and review completed loans. Reporting
+            and admin moderation are available too.
           </p>
         </div>
 

@@ -201,8 +201,8 @@ export default function LandingPage() {
               <span className="text-primary-600">Lend what you have.</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-neutral-500">
-              Browse local listings, compare daily prices, and reduce waste. Borrow
-              requests, returns, and reviews are coming in future phases.
+              Browse local listings, compare daily prices, and reduce waste. Request
+              to borrow, track decisions, and review completed loans.
             </p>
             <div className="mx-auto mt-7 max-w-2xl">
               <SearchBar variant="full" placeholder="Search items: tools, cameras, camping gear..." />
@@ -366,7 +366,7 @@ export default function LandingPage() {
               dark
               eyebrow="Platform Status"
               title="What works today"
-              description="These features are available now. Requests, reviews, reporting, and admin tools are still planned."
+              description="Search, owner tools, borrow requests, reviews, reporting, and the admin console are available now."
             />
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

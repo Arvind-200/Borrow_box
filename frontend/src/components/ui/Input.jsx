@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 
 export const Input = forwardRef(function Input({
   label,
@@ -8,7 +8,8 @@ export const Input = forwardRef(function Input({
   id,
   ...props
 }, ref) {
-  const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
+  const generatedId = useId()
+  const inputId = id || (label ? `${label.toLowerCase().replace(/\s+/g, '-')}-${generatedId}` : generatedId)
 
   return (
     <div className="w-full">

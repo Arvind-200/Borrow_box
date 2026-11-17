@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
@@ -15,21 +16,25 @@ import MyProductsPage from './pages/MyProductsPage'
 import RequestsPage from './pages/RequestsPage'
 import AboutPage from './pages/AboutPage'
 import NotFoundPage from './pages/NotFoundPage'
-import AdminDashboardPage from './pages/admin/AdminDashboardPage'
-import AdminUsersPage from './pages/admin/AdminUsersPage'
-import AdminListingsPage from './pages/admin/AdminListingsPage'
-import AdminRequestsPage from './pages/admin/AdminRequestsPage'
-import AdminReportsPage from './pages/admin/AdminReportsPage'
-import AdminReviewsPage from './pages/admin/AdminReviewsPage'
-import AdminCategoriesPage from './pages/admin/AdminCategoriesPage'
-import AdminActivityPage from './pages/admin/AdminActivityPage'
-import AdminSettingsPage from './pages/admin/AdminSettingsPage'
+
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'))
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'))
+const AdminListingsPage = lazy(() => import('./pages/admin/AdminListingsPage'))
+const AdminRequestsPage = lazy(() => import('./pages/admin/AdminRequestsPage'))
+const AdminReportsPage = lazy(() => import('./pages/admin/AdminReportsPage'))
+const AdminReviewsPage = lazy(() => import('./pages/admin/AdminReviewsPage'))
+const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'))
+const AdminActivityPage = lazy(() => import('./pages/admin/AdminActivityPage'))
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'))
 
 function PublicLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#172033]">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1">
         <Outlet />
       </main>
       <Footer />

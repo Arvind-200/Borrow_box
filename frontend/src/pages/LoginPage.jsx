@@ -9,12 +9,26 @@ import { Logo } from '../components/ui/Logo.jsx'
 
 // Only same-origin, non-API paths may be used as return destinations.
 function isSafeInternalPath(path) {
-  return (
-    typeof path === 'string' &&
-    path.startsWith('/') &&
-    !path.startsWith('//') &&
-    !path.startsWith('/api')
-  )
+  if (
+    typeof path !== 'string' ||
+    !path.startsWith('/') ||
+    path.startsWith('//') ||
+    path.includes('\\') ||
+    /%5c/i.test(path)
+  ) {
+    return false
+  }
+
+  try {
+    const url = new URL(path, window.location.origin)
+    return (
+      url.origin === window.location.origin &&
+      url.pathname.startsWith('/') &&
+      !url.pathname.startsWith('/api')
+    )
+  } catch {
+    return false
+  }
 }
 
 export default function LoginPage() {

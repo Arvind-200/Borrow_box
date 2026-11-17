@@ -1,4 +1,4 @@
-import { useEffect, Fragment, useState } from 'react'
+import { useEffect, Fragment, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { Button } from '../ui/Button'
@@ -8,6 +8,7 @@ import { Logo } from '../ui/Logo.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useToast } from '../ui/Toast.jsx'
 import { ConfirmDialog } from '../ui/Modal'
+import { useFocusTrap } from '../../hooks/useFocusTrap.js'
 
 const navLinks = [
   { path: '/', label: 'Home', icon: 'home' },
@@ -35,6 +36,9 @@ export function MobileNavPanel({ isOpen, onClose }) {
   const toast = useToast()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const panelRef = useRef(null)
+
+  useFocusTrap(isOpen && !isConfirmOpen, panelRef, { onEscape: onClose })
 
   const handleLogout = async () => {
     setIsConfirmOpen(true)
@@ -56,11 +60,11 @@ export function MobileNavPanel({ isOpen, onClose }) {
   }
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-      return () => {
-        document.body.style.overflow = 'unset'
-      }
+    if (!isOpen) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
     }
   }, [isOpen])
 
@@ -73,12 +77,22 @@ export function MobileNavPanel({ isOpen, onClose }) {
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="fixed inset-y-0 right-0 w-full max-w-sm lg:hidden z-50 flex flex-col animate-slide-in">
+      <div
+        ref={panelRef}
+        id="mobile-nav-panel"
+        className="fixed inset-y-0 right-0 w-full max-w-sm lg:hidden z-50 flex flex-col animate-slide-in"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+        tabIndex={-1}
+      >
         <div className="flex items-center justify-between p-4 border-b border-neutral-100 bg-white">
           <Link to="/" className="flex items-center gap-2" aria-label="BorrowBox Home" onClick={onClose}>
             <Logo size="md" />
           </Link>
           <button
+            type="button"
+            data-autofocus="true"
             onClick={onClose}
             className="p-2 rounded-lg text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors lg:hidden"
             aria-label="Close menu"
@@ -108,6 +122,7 @@ export function MobileNavPanel({ isOpen, onClose }) {
                         : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900'
                       }
                     `}
+                    aria-current={location.pathname === link.path ? 'page' : undefined}
                   >
                     <span className="flex-shrink-0 text-neutral-400" aria-hidden="true">
                       {icons[link.icon]}

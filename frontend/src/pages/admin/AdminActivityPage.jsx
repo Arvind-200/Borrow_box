@@ -5,6 +5,7 @@ import { TableSkeleton } from '../../components/ui/LoadingSpinner'
 import { Pagination } from '../../components/ui/Pagination'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminPanel } from '../../components/admin/AdminPanel'
+import { AdminTableScroll } from '../../components/admin/AdminTableScroll'
 import { AdminEmptyState } from '../../components/admin/AdminEmptyState'
 import {
   AdminFilterGroup,
@@ -21,7 +22,6 @@ import {
   adminTableHeadCell,
   adminTableCell,
   adminTableRow,
-  adminTableWrapper,
 } from '../../components/admin/adminStyles'
 
 const LIMIT = 20
@@ -175,7 +175,7 @@ export default function AdminActivityPage() {
 
         {status === 'success' && activities.length > 0 && (
           <>
-            <div className={adminTableWrapper}>
+            <AdminTableScroll label="Activity log table">
               <table className={adminTable}>
                 <thead className="bg-[#F8FAFC]">
                   <tr>
@@ -242,7 +242,7 @@ export default function AdminActivityPage() {
                   })}
                 </tbody>
               </table>
-            </div>
+            </AdminTableScroll>
             <div className="border-t border-[#E2E8F0] px-4 py-4">
               <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
                 <p className="text-xs text-[#64748B]">

@@ -60,8 +60,7 @@ function ToastItem({ toast, onRemove }) {
         flex items-start gap-3 p-4 rounded-xl border shadow-lg animate-slide-in
         ${toastStyles[toast.type]}
       `}
-      role="alert"
-      aria-live="polite"
+      role={toast.type === 'error' || toast.type === 'warning' ? 'alert' : 'status'}
     >
         <div className={`${iconStyles[toast.type]} flex-shrink-0 mt-0.5`}>
         {icons[toast.type]}
@@ -96,7 +95,7 @@ export function ToastContainer() {
   if (!toasts || toasts.length === 0) return null
 
   return createPortal(
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 w-96 max-w-full">
+    <div className="fixed bottom-4 right-4 z-[100] flex w-[calc(100vw-2rem)] max-w-sm flex-col gap-3 sm:bottom-6 sm:right-6">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
       ))}

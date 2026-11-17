@@ -85,20 +85,35 @@
 - [x] settings
 
 ## Phase 10 - Polish
-- responsive QA
-- accessibility basics
-- error handling
-- security review
-- performance cleanup
-- seed/demo data
-- final build
+- [x] responsive QA
+- [x] accessibility basics
+- [x] error handling
+- [x] security review
+- [x] performance cleanup
+- [x] seed/demo data
+- [x] final build
+
+Verified 2026-11-17: backend unit tests 132/132; frontend production build
+passed (101 modules); headless Chrome QA at 390/768/1440 px found no page-level
+horizontal overflow on the landing page, browse, product detail, or admin
+listings; admin tables expose keyboard-scrollable regions; the admin mobile
+drawer traps focus, closes on Escape, restores focus, and locks background
+scroll; the compact listings table shows the Actions column at 1440 px; the
+skip link is fully hidden until focused. Seed data confirmed: 8 categories,
+8 seeded demo listings, 9 published listings total, no fake review counts, and
+one admin account. Temporary QA admins were deleted after the run. Remaining
+frontend dependency audit findings require major upgrades and are documented in
+`README.md`.
 
 ## Phase 11 - College submission
-- README
-- screenshots
-- project documentation
-- database explanation
-- API explanation
-- PPT
-- viva questions/answers
-- demo script
+- [x] README
+- [x] screenshots
+- [ ] project documentation
+- [ ] database explanation
+- [ ] API explanation
+- [ ] PPT
+- [ ] viva questions/answers
+- [ ] demo script
+
+Only README and screenshots were prepared during the submission audit; the
+remaining Phase 11 items are not started.

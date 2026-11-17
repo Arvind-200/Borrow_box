@@ -10,8 +10,10 @@ import {
   ProductCategoryIcon,
   getCategoryGradient,
 } from '../../components/product/productVisuals'
+import { ProductImage } from '../../components/product/ProductImage'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminPanel } from '../../components/admin/AdminPanel'
+import { AdminTableScroll } from '../../components/admin/AdminTableScroll'
 import { AdminEmptyState } from '../../components/admin/AdminEmptyState'
 import { AdminReasonDialog } from '../../components/admin/AdminReasonDialog'
 import {
@@ -31,11 +33,12 @@ import {
 } from '../../components/admin/adminFormat'
 import {
   adminTable,
-  adminTableHeadCell,
-  adminTableCell,
   adminTableRow,
-  adminTableWrapper,
 } from '../../components/admin/adminStyles'
+
+const listingHeadCell =
+  'whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#64748B]'
+const listingCell = 'px-3 py-3.5 align-middle text-sm text-[#334155]'
 
 const LIMIT = 20
 
@@ -259,18 +262,17 @@ export default function AdminListingsPage() {
 
         {status === 'success' && products.length > 0 && (
           <>
-            <div className={adminTableWrapper}>
+            <AdminTableScroll label="Listings table">
               <table className={adminTable}>
                 <thead className="bg-[#F8FAFC]">
                   <tr>
-                    <th className={adminTableHeadCell}>Listing</th>
-                    <th className={adminTableHeadCell}>Owner</th>
-                    <th className={adminTableHeadCell}>Category</th>
-                    <th className={adminTableHeadCell}>Price</th>
-                    <th className={adminTableHeadCell}>Moderation</th>
-                    <th className={adminTableHeadCell}>Availability</th>
-                    <th className={adminTableHeadCell}>Created</th>
-                    <th className={adminTableHeadCell}>Actions</th>
+                    <th className={listingHeadCell}>Listing</th>
+                    <th className={listingHeadCell}>Owner</th>
+                    <th className={listingHeadCell}>Category</th>
+                    <th className={listingHeadCell}>Price</th>
+                    <th className={listingHeadCell}>Moderation</th>
+                    <th className={listingHeadCell}>Availability</th>
+                    <th className={listingHeadCell}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -282,66 +284,67 @@ export default function AdminListingsPage() {
 
                     return (
                       <tr key={product.id} className={adminTableRow}>
-                        <td className={adminTableCell}>
-                          <div className="flex items-center gap-3">
-                            <div className="h-11 w-11 flex-shrink-0 overflow-hidden rounded-lg">
-                              {image ? (
-                                <img
-                                  src={image}
-                                  alt=""
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <div
-                                  className="flex h-full w-full items-center justify-center"
-                                  style={{ background: getCategoryGradient(categoryName) }}
-                                >
-                                  <ProductCategoryIcon
-                                    category={categoryName}
-                                    className="h-5 w-5 text-white"
-                                  />
-                                </div>
-                              )}
+                        <td className={listingCell}>
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
+                              <ProductImage
+                                src={image}
+                                alt=""
+                                className="h-full w-full object-cover"
+                                loading="lazy"
+                                fallback={
+                                  <div
+                                    className="flex h-full w-full items-center justify-center"
+                                    style={{ background: getCategoryGradient(categoryName) }}
+                                  >
+                                    <ProductCategoryIcon
+                                      category={categoryName}
+                                      className="h-5 w-5 text-white"
+                                    />
+                                  </div>
+                                }
+                              />
                             </div>
                             <div className="min-w-0">
                               {canOpen ? (
                                 <Link
                                   to={`/products/${product.id}`}
-                                  className="block max-w-[240px] truncate font-semibold text-[#0F1626] hover:text-primary-700"
+                                  className="block max-w-[190px] truncate font-semibold text-[#0F1626] hover:text-primary-700"
                                 >
                                   {product.title}
                                 </Link>
                               ) : (
-                                <p className="max-w-[240px] truncate font-semibold text-[#0F1626]">
+                                <p className="max-w-[190px] truncate font-semibold text-[#0F1626]">
                                   {product.title}
                                 </p>
                               )}
-                              <p className="truncate text-xs text-[#94A3B8]">
-                                {product.location}
+                              <p className="max-w-[190px] truncate text-xs text-[#94A3B8]">
+                                {product.location} · Added{' '}
+                                {formatAdminDate(product.createdAt)}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className={adminTableCell}>
+                        <td className={listingCell}>
                           <p className="whitespace-nowrap font-medium text-[#334155]">
                             {product.owner?.name || 'Unknown'}
                           </p>
-                          <p className="text-xs text-[#94A3B8]">
+                          <p className="max-w-[150px] truncate text-xs text-[#94A3B8]">
                             {product.owner?.email || ''}
                           </p>
                         </td>
-                        <td className={adminTableCell}>
+                        <td className={listingCell}>
                           <span className="whitespace-nowrap text-[#475569]">
                             {categoryName}
                           </span>
                         </td>
-                        <td className="whitespace-nowrap px-5 py-4 text-sm font-semibold text-[#0F1626]">
+                        <td className="whitespace-nowrap px-3 py-3.5 text-sm font-semibold text-[#0F1626]">
                           {formatAdminCurrency(product.rentPerDay)}
                           <span className="text-xs font-normal text-[#94A3B8]">
                             /day
                           </span>
                         </td>
-                        <td className={adminTableCell}>
+                        <td className={listingCell}>
                           <AdminStatusBadge
                             label={
                               product.isPublished
@@ -351,7 +354,7 @@ export default function AdminListingsPage() {
                             tone={productStatusTone(product.moderationStatus)}
                           />
                         </td>
-                        <td className={adminTableCell}>
+                        <td className={listingCell}>
                           <AdminStatusBadge
                             label={
                               product.availability === 'available'
@@ -361,10 +364,7 @@ export default function AdminListingsPage() {
                             tone={availabilityTone(product.availability)}
                           />
                         </td>
-                        <td className="whitespace-nowrap px-5 py-4 text-xs text-[#64748B]">
-                          {formatAdminDate(product.createdAt)}
-                        </td>
-                        <td className={adminTableCell}>
+                        <td className={listingCell}>
                           <div className="flex items-center gap-0.5">
                             {product.moderationStatus === 'active' && (
                               <button
@@ -405,7 +405,7 @@ export default function AdminListingsPage() {
                   })}
                 </tbody>
               </table>
-            </div>
+            </AdminTableScroll>
             <div className="border-t border-[#E2E8F0] px-4 py-4">
               <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
                 <p className="text-xs text-[#64748B]">

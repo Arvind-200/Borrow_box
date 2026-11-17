@@ -11,6 +11,7 @@ import { RequestBorrowModal } from '../components/borrow/RequestBorrowModal'
 import { ReportModal } from '../components/report/ReportModal'
 import { ReviewSection } from '../components/review/ReviewSection'
 import { ProductCategoryIcon, getCategoryGradient } from '../components/product/productVisuals'
+import { ProductImage } from '../components/product/ProductImage'
 
 const conditionLabels = {
   new: 'New',
@@ -265,18 +266,21 @@ export default function ProductDetailPage() {
         <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10">
           <section aria-label="Product images">
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-card">
-              {activeImage ? (
-                <img src={activeImage} alt={product.title} className="h-full w-full object-cover" />
-              ) : (
-                <div
-                  className="flex h-full w-full items-center justify-center"
-                  style={{ background: getCategoryGradient(categoryName) }}
-                >
-                  <div className="flex h-28 w-28 items-center justify-center rounded-3xl bg-white/20 text-white backdrop-blur-sm">
-                    <ProductCategoryIcon category={categoryName} className="h-14 w-14" />
+              <ProductImage
+                src={activeImage}
+                alt={product.title}
+                className="h-full w-full object-cover"
+                fallback={
+                  <div
+                    className="flex h-full w-full items-center justify-center"
+                    style={{ background: getCategoryGradient(categoryName) }}
+                  >
+                    <div className="flex h-28 w-28 items-center justify-center rounded-3xl bg-white/20 text-white backdrop-blur-sm">
+                      <ProductCategoryIcon category={categoryName} className="h-14 w-14" />
+                    </div>
                   </div>
-                </div>
-              )}
+                }
+              />
               <div className="absolute left-4 top-4">
                 <Badge variant="primary" size="sm">
                   {categoryName}
@@ -297,7 +301,13 @@ export default function ProductDetailPage() {
                     aria-label={`Show product image ${index + 1}`}
                     aria-pressed={activeImage === image}
                   >
-                    <img src={image} alt="" className="h-full w-full object-cover" />
+                    <ProductImage
+                      src={image}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      fallback={<span className="block h-full w-full bg-neutral-100" />}
+                    />
                   </button>
                 ))}
               </div>
