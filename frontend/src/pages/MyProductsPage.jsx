@@ -146,6 +146,39 @@ export default function MyProductsPage() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setIsDeleting(true)
+
+    try {
+      await api.deleteProduct(deleteTarget.id)
+      setProducts((current) =>
+        current.filter((item) => item.id !== deleteTarget.id)
+      )
+      toast.success(
+        'Listing deleted',
+        'Your listing has been permanently removed.'
+      )
+      setDeleteTarget(null)
+    } catch (err) {
+      if (err.status === 401) {
+        try {
+          await refresh()
+          toast.error('Could not verify your session', 'Please try again.')
+        } catch {
+          toast.error('Your session has expired', 'Please log in again.')
+        }
+        return
+      }
+      toast.error(
+        'Could not delete listing',
+        err.message || 'Please try again.'
+      )
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <div className="bg-[#F8FAFC]">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
@@ -256,40 +289,7 @@ export default function MyProductsPage() {
               const updatedDate = formatDate(product.updatedAt)
               const isPending = pendingId === product.id
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return
-    setIsDeleting(true)
-
-    try {
-      await api.deleteProduct(deleteTarget.id)
-      setProducts((current) =>
-        current.filter((item) => item.id !== deleteTarget.id)
-      )
-      toast.success(
-        'Listing deleted',
-        'Your listing has been permanently removed.'
-      )
-      setDeleteTarget(null)
-    } catch (err) {
-      if (err.status === 401) {
-        try {
-          await refresh()
-          toast.error('Could not verify your session', 'Please try again.')
-        } catch {
-          toast.error('Your session has expired', 'Please log in again.')
-        }
-        return
-      }
-      toast.error(
-        'Could not delete listing',
-        err.message || 'Please try again.'
-      )
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
-  return (
+              return (
                 <article
                   key={product.id}
                   className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-card transition-shadow hover:shadow-elevated"
